@@ -1,0 +1,27 @@
+# Ambiente Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Variáveis de ambiente — NUNCA suba isso
+.env
+.env.local
+.env.*.local
+
+# Bot Discord — roda em outro servidor, não vai para a Vercel
+bot.py
+
+# Vercel
+.vercel/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

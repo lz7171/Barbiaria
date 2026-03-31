@@ -1,0 +1,2 @@
+fastapi==0.115.6
+aiomysql==0.2.0
