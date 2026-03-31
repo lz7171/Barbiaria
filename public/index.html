@@ -1,1 +1,3060 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title id="page-title">Agendamento Online</title>
+<meta name="description" id="page-desc" content="Agendamento online fácil e rápido"/>
+<meta property="og:title" id="og-title" content="Agendamento Online"/>
+<meta property="og:description" id="og-desc" content="Agende agora pelo site"/>
+<meta property="og:type" content="website"/>
+<meta property="og:image" id="og-image" content=""/>
+<meta name="theme-color" id="theme-color" content="#080808"/>
+<meta name="robots" content="index, follow"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 
+<style>
+/* ═══════════════════════════════════════════
+   RESET & CSS VARIABLES
+═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --gold:#c8a45a;
+  --gold-light:#e8c97a;
+  --gold-dim:rgba(200,164,90,.15);
+  --gold-border:rgba(200,164,90,.28);
+  --bg:#080808;
+  --bg2:#0e0e0e;
+  --bg3:#141414;
+  --bg4:#1c1c1c;
+  --bg5:#222222;
+  --surface:rgba(255,255,255,.03);
+  --surface2:rgba(255,255,255,.06);
+  --text:#ede9e1;
+  --text-dim:#7a7066;
+  --text-mid:#a89e90;
+  --danger:#c0392b;
+  --danger-dim:rgba(192,57,43,.15);
+  --success:#27ae60;
+  --success-dim:rgba(39,174,96,.12);
+  --warn:#e67e22;
+  --r:6px;
+  --r2:12px;
+  --r3:18px;
+  --t:.25s cubic-bezier(.4,0,.2,1);
+  --shadow:0 8px 32px rgba(0,0,0,.6);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.8);
+}
+
+html{scroll-behavior:smooth}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input,select,textarea{font-family:inherit;outline:none;border:none;background:none}
+img{max-width:100%;display:block}
+::selection{background:var(--gold);color:#000}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--gold-border);border-radius:2px}
+
+/* LOADING */
+#loading-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;transition:opacity .6s ease,visibility .6s}
+#loading-screen.out{opacity:0;visibility:hidden;pointer-events:none}
+.ls-logo{font-family:'Cormorant Garamond',serif;font-size:1.1rem;letter-spacing:.5em;color:var(--gold);text-transform:uppercase;font-weight:300}
+.ls-line{width:120px;height:1px;background:var(--bg4);position:relative;overflow:hidden}
+.ls-line::after{content:'';position:absolute;inset-block:0;left:-40%;width:40%;background:var(--gold);animation:lsslide 1.2s ease-in-out infinite}
+@keyframes lsslide{to{left:140%}}
+
+/* TOAST */
+#toast-box{position:fixed;bottom:28px;right:28px;z-index:8000;display:flex;flex-direction:column;gap:10px;pointer-events:none;max-width:340px}
+.toast{background:var(--bg3);border:1px solid var(--gold-border);padding:13px 20px;border-radius:var(--r);font-size:.82rem;pointer-events:all;animation:tin .3s ease forwards;box-shadow:var(--shadow);font-family:'DM Mono',monospace;color:var(--text-mid);display:flex;align-items:flex-start;gap:10px}
+.toast.ok{border-color:rgba(39,174,96,.4);color:#52d68a}
+.toast.err{border-color:rgba(192,57,43,.4);color:#e57e7e}
+@keyframes tin{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+@keyframes tout{to{transform:translateX(110%);opacity:0}}
+
+/* ═══════════════════════════════════════════
+   PUBLIC SITE
+═══════════════════════════════════════════ */
+#pub{display:none}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 6%;background:rgba(8,8,8,.88);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.04);transition:background var(--t)}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:600;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:12px}
+.nav-logo img{height:36px;width:36px;object-fit:contain;border-radius:4px}
+.nav-links{display:flex;gap:36px;align-items:center}
+.nav-links a{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text-dim);transition:color var(--t)}
+.nav-links a:hover{color:var(--gold)}
+.nav-btn{background:transparent;border:1px solid var(--gold-border);color:var(--gold);padding:9px 22px;border-radius:var(--r);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;transition:all var(--t)}
+.nav-btn:hover{background:var(--gold);color:#000;border-color:var(--gold)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:flex-end;padding:0 6% 100px;position:relative;background-size:cover;background-position:center}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(160deg,rgba(8,8,8,.5) 0%,rgba(8,8,8,.96) 65%)}
+.hero-grain{position:absolute;inset:0;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero-content{position:relative;z-index:1;max-width:680px}
+.hero-tag{display:inline-flex;align-items:center;gap:10px;font-family:'DM Mono',monospace;font-size:.72rem;letter-spacing:.22em;color:var(--gold);text-transform:uppercase;margin-bottom:28px}
+.hero-tag::before{content:'';display:block;width:28px;height:1px;background:var(--gold)}
+.hero h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(3.4rem,7vw,6.5rem);line-height:1;color:var(--text);letter-spacing:.02em;margin-bottom:24px}
+.hero h1 em{font-style:italic;color:var(--gold)}
+.hero-desc{font-size:.9rem;color:var(--text-dim);line-height:1.8;max-width:420px;margin-bottom:44px;font-family:'DM Mono',monospace}
+.hero-ctas{display:flex;gap:16px;flex-wrap:wrap}
+.hero-scroll{position:absolute;bottom:42px;right:6%;z-index:1;font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.22em;color:var(--text-dim);text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:10px}
+.hero-scroll::after{content:'';display:block;width:1px;height:48px;background:var(--gold-border);animation:scpulse 2s ease-in-out infinite}
+@keyframes scpulse{0%,100%{opacity:.3}50%{opacity:1}}
+
+.btn-primary{background:var(--gold);color:#000;padding:14px 36px;border-radius:var(--r);font-size:.78rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;transition:all var(--t);display:inline-block;border:1px solid var(--gold)}
+.btn-primary:hover{background:var(--gold-light);box-shadow:0 8px 30px rgba(200,164,90,.3)}
+.btn-outline{background:transparent;color:var(--text);padding:14px 36px;border-radius:var(--r);font-size:.78rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;border:1px solid rgba(255,255,255,.12);transition:all var(--t);display:inline-block}
+.btn-outline:hover{border-color:var(--gold-border);color:var(--gold)}
+
+.sec{padding:100px 6%;max-width:1300px;margin:0 auto}
+.sec-label{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.sec-label::before{content:'';display:block;width:20px;height:1px;background:var(--gold)}
+.sec-title{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(2rem,4vw,3.4rem);color:var(--text);margin-bottom:52px;line-height:1.1}
+.sec-title em{font-style:italic;color:var(--gold)}
+.divider{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--gold-border),transparent)}
+
+/* GALERIA */
+#gallery-wrap{padding:80px 0;display:none}
+.gallery-inner{padding:0 6%;max-width:1300px;margin:0 auto}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px;border-radius:var(--r2);overflow:hidden}
+.gallery-img{aspect-ratio:1;object-fit:cover;width:100%;display:block;transition:transform var(--t);cursor:zoom-in}
+.gallery-img:hover{transform:scale(1.03)}
+.gallery-item{overflow:hidden}
+
+/* SERVIÇOS */
+#services-wrap{padding:100px 0}
+.services-inner{padding:0 6%;max-width:1300px;margin:0 auto}
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2px;border:1px solid var(--gold-border);border-radius:var(--r2);overflow:hidden}
+.svc-card{padding:36px 32px;background:var(--bg2);transition:background var(--t);cursor:default;position:relative}
+.svc-card:hover{background:var(--bg3)}
+.svc-id{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.2em;color:var(--text-dim);text-transform:uppercase;margin-bottom:18px}
+.svc-name{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.2}
+.svc-desc{font-size:.78rem;color:var(--text-dim);line-height:1.65;margin-bottom:22px;font-family:'DM Mono',monospace}
+.svc-footer{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.svc-price{font-family:'Cormorant Garamond',serif;font-size:1.85rem;font-weight:700;color:var(--gold)}
+.svc-dur{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--text-dim)}
+.svc-btn{width:100%;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);padding:11px;border-radius:var(--r);font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;font-weight:600;transition:all var(--t)}
+.svc-btn:hover{background:var(--gold);color:#000}
+
+/* SOBRE */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.about-visual{position:relative;aspect-ratio:4/5;border-radius:var(--r2);overflow:visible;background:var(--bg3);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center}
+.about-img{width:100%;height:100%;object-fit:cover;border-radius:var(--r2)}
+.about-icon{font-size:4rem;opacity:.12}
+.about-corner{position:absolute;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.15em;color:var(--gold);opacity:.5;text-transform:uppercase}
+.about-corner.tl{top:16px;left:16px}
+.about-corner.br{bottom:16px;right:16px}
+.about-badge{position:absolute;bottom:-24px;right:-24px;width:96px;height:96px;border-radius:50%;background:var(--gold);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#000;box-shadow:0 10px 40px rgba(200,164,90,.35)}
+.about-badge-n{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;line-height:1}
+.about-badge-t{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase}
+.about-text p{font-size:.88rem;color:var(--text-dim);line-height:1.85;font-family:'DM Mono',monospace;margin-bottom:18px}
+.about-addr{margin-top:28px;padding:18px 22px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--gold-border);display:flex;align-items:center;gap:14px}
+.about-addr-icon{font-size:1.1rem;color:var(--gold)}
+.about-addr-txt{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--text-dim);line-height:1.5}
+
+/* HORÁRIOS */
+.schedule-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;border:1px solid var(--gold-border);border-radius:var(--r2);overflow:hidden}
+.sch-day{padding:22px 12px;background:var(--bg2);text-align:center;transition:background var(--t)}
+.sch-day-name{font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;font-family:'DM Mono',monospace}
+.sch-day-hours{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--text);line-height:1.4}
+.sch-day-interval{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--text-dim);margin-top:4px;opacity:.7}
+.sch-day.closed .sch-day-hours{color:var(--text-dim);font-size:.72rem;font-family:'DM Mono',monospace}
+.sch-day.today{background:var(--bg4);position:relative}
+.sch-day.today::after{content:'●';position:absolute;top:6px;right:8px;font-size:.5rem;color:var(--gold)}
+
+/* BARBEIROS */
+#barbers-wrap{padding:80px 0;display:none}
+.barbers-inner{padding:0 6%;max-width:1300px;margin:0 auto}
+.barbers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px}
+.barber-card{background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:var(--r2);padding:28px 20px;text-align:center;transition:border-color var(--t)}
+.barber-card:hover{border-color:var(--gold-border)}
+.barber-avatar{width:72px;height:72px;border-radius:50%;background:var(--bg4);border:2px solid var(--gold-border);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;overflow:hidden;object-fit:cover}
+.barber-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.barber-name{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;color:var(--text);margin-bottom:4px}
+.barber-bio{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--text-dim);line-height:1.5}
+
+/* BOOKING */
+#booking-wrap{background:var(--bg2);border-top:1px solid var(--gold-border);border-bottom:1px solid var(--gold-border)}
+.booking-inner{padding:100px 6%;max-width:760px;margin:0 auto}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.full{grid-template-columns:1fr}
+.fgroup{display:flex;flex-direction:column;gap:7px}
+.flabel{font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim)}
+.finput{background:var(--bg3);border:1px solid rgba(255,255,255,.07);color:var(--text);padding:13px 15px;border-radius:var(--r);font-size:.88rem;transition:border-color var(--t);width:100%}
+.finput:focus{border-color:var(--gold-border)}
+.finput option{background:var(--bg3)}
+.finput::placeholder{color:var(--text-dim)}
+.slots-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;min-height:48px;align-items:flex-start}
+.slot-btn{background:var(--bg4);border:1px solid rgba(255,255,255,.07);color:var(--text-mid);padding:9px 16px;border-radius:var(--r);font-family:'DM Mono',monospace;font-size:.75rem;transition:all var(--t)}
+.slot-btn:hover:not(:disabled){border-color:var(--gold-border);color:var(--gold)}
+.slot-btn.active{background:var(--gold);color:#000;border-color:var(--gold)}
+.slot-btn.booked{opacity:.3;cursor:not-allowed;text-decoration:line-through}
+.slot-empty{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--text-dim);padding:10px 0}
+.form-submit{margin-top:32px}
+.phone-hint{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--text-dim);margin-top:4px;opacity:.7}
+
+/* FOOTER */
+.footer{padding:56px 6% 36px;border-top:1px solid rgba(255,255,255,.04)}
+.footer-inner{max-width:1300px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+.footer-logo{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--gold);letter-spacing:.15em;text-transform:uppercase}
+.footer-copy{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--text-dim)}
+
+/* ERROR PAGE */
+.error-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px}
+.error-code{font-family:'Cormorant Garamond',serif;font-size:7rem;font-weight:300;color:var(--gold-border);line-height:1;margin-bottom:12px}
+.error-msg{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:var(--text);margin-bottom:8px}
+.error-sub{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--text-dim)}
+
+/* ═══════════════════════════════════════════
+   ADMIN
+═══════════════════════════════════════════ */
+#admin{display:none}
+#adm-login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);position:relative;overflow:hidden}
+#adm-login::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(200,164,90,.05) 0%,transparent 70%)}
+.login-box{width:100%;max-width:380px;padding:46px;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r2);position:relative;z-index:1;box-shadow:var(--shadow-lg)}
+.login-brand{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;text-align:center;margin-bottom:6px}
+.login-sub{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--text-dim);text-align:center;letter-spacing:.12em;text-transform:uppercase;margin-bottom:38px}
+.login-input{width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,.07);color:var(--text);padding:13px 15px;border-radius:var(--r);font-size:.88rem;transition:border-color var(--t);margin-bottom:12px;display:block}
+.login-input:focus{border-color:var(--gold-border)}
+.login-btn{width:100%;background:var(--gold);color:#000;padding:14px;border-radius:var(--r);font-size:.8rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;transition:all var(--t);margin-top:6px}
+.login-btn:hover{background:var(--gold-light);box-shadow:0 8px 30px rgba(200,164,90,.3)}
+.login-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* DASH LAYOUT */
+#adm-dash{display:none;min-height:100vh}
+.adm-layout{display:flex}
+.sidebar{width:240px;min-height:100vh;background:var(--bg2);border-right:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;position:sticky;top:0;flex-shrink:0;height:100vh;overflow-y:auto}
+.sidebar-logo{padding:26px 22px 20px;font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.05)}
+.sidebar-logo span{display:block;font-family:'DM Mono',monospace;font-size:.58rem;color:var(--text-dim);letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
+.sidebar-nav{padding:18px 0;flex:1}
+.sn-group{padding:6px 22px 4px;font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);opacity:.5;margin-top:8px}
+.sn-item{display:flex;align-items:center;gap:12px;padding:11px 22px;font-size:.78rem;color:var(--text-dim);transition:all var(--t);cursor:pointer;position:relative;user-select:none}
+.sn-item:hover{color:var(--text);background:var(--surface)}
+.sn-item.active{color:var(--gold);background:var(--gold-dim)}
+.sn-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--gold)}
+.sn-icon{font-size:.9rem;width:18px;text-align:center;flex-shrink:0}
+.sn-label{font-size:.78rem;letter-spacing:.04em}
+.sidebar-bottom{padding:18px 22px;border-top:1px solid rgba(255,255,255,.05)}
+.adm-user{font-family:'DM Mono',monospace;font-size:.67rem;color:var(--text-dim);margin-bottom:10px}
+.adm-logout{font-family:'DM Mono',monospace;font-size:.67rem;color:var(--text-dim);cursor:pointer;letter-spacing:.08em;text-transform:uppercase;transition:color var(--t)}
+.adm-logout:hover{color:var(--danger)}
+.adm-main{flex:1;overflow:hidden;min-width:0}
+.adm-header{padding:26px 34px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:12px}
+.adm-page-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--text)}
+.adm-page-sub{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--text-dim);margin-top:2px}
+.adm-content{padding:30px 34px}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:30px}
+.stat-card{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:var(--r2);padding:22px 24px;transition:border-color var(--t)}
+.stat-card:hover{border-color:rgba(255,255,255,.1)}
+.stat-label{font-family:'DM Mono',monospace;font-size:.64rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:600;color:var(--text);line-height:1}
+.stat-gold{color:var(--gold)}
+.stat-hint{font-family:'DM Mono',monospace;font-size:.64rem;color:var(--text-dim);margin-top:5px}
+
+/* TABLES */
+.tbl-wrap{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:var(--r2);overflow:hidden}
+.tbl-head{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.tbl-head-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:var(--text)}
+.tbl-search{background:var(--bg4);border:1px solid rgba(255,255,255,.07);color:var(--text);padding:8px 13px;border-radius:var(--r);font-family:'DM Mono',monospace;font-size:.72rem;width:200px;transition:border-color var(--t)}
+.tbl-search:focus{border-color:var(--gold-border)}
+.tbl-search::placeholder{color:var(--text-dim)}
+table{width:100%;border-collapse:collapse}
+thead th{padding:12px 18px;font-family:'DM Mono',monospace;font-size:.64rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);text-align:left;background:var(--bg4);border-bottom:1px solid rgba(255,255,255,.05)}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background var(--t)}
+tbody tr:hover{background:var(--surface)}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:13px 18px;font-size:.83rem;color:var(--text-mid)}
+.td-bold{color:var(--text);font-weight:600}
+.td-gold{font-family:'DM Mono',monospace;color:var(--gold);font-size:.78rem}
+.td-dim{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--text-dim)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.63rem;letter-spacing:.06em;text-transform:uppercase}
+.badge-ok{background:var(--success-dim);color:#52d68a;border:1px solid rgba(39,174,96,.2)}
+.badge-warn{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
+.badge-err{background:var(--danger-dim);color:#e57e7e;border:1px solid rgba(192,57,43,.2)}
+
+/* CARDS DE BARBEARIA */
+.client-card{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:var(--r2);padding:22px;transition:border-color var(--t);display:flex;flex-direction:column;gap:14px}
+.client-card:hover{border-color:var(--gold-border)}
+.client-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.client-card-name{font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:var(--text);font-weight:600;line-height:1.2}
+.client-card-slug{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--gold);letter-spacing:.08em;margin-top:3px}
+.client-card-body{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.client-meta{display:flex;flex-direction:column;gap:3px}
+.client-meta-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim)}
+.client-meta-val{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--text-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.client-card-link{background:var(--bg4);border:1px solid rgba(255,255,255,.06);border-radius:var(--r);padding:10px 13px;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;transition:border-color var(--t)}
+.client-card-link:hover{border-color:var(--gold-border)}
+.client-card-link-url{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.client-card-link-btn{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--gold);white-space:nowrap;flex-shrink:0;background:var(--gold-dim);border:1px solid var(--gold-border);padding:4px 10px;border-radius:4px;transition:all var(--t)}
+.client-card-link-btn:hover{background:var(--gold);color:#000}
+.client-card-actions{display:flex;gap:8px;flex-wrap:wrap}
+.clients-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+
+/* LINK BOX */
+.link-box{background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r2);padding:22px 26px;margin-bottom:20px}
+.link-box-title{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.link-box-url{font-family:'DM Mono',monospace;font-size:.82rem;color:var(--text);word-break:break-all;line-height:1.6;margin-bottom:12px}
+.link-box-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ONBOARDING */
+.onboarding-banner{background:linear-gradient(135deg,var(--bg3) 0%,rgba(200,164,90,.05) 100%);border:1px solid var(--gold-border);border-radius:var(--r2);padding:26px 30px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.onboarding-text h3{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--text);margin-bottom:4px}
+.onboarding-text p{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--text-dim);line-height:1.6}
+.onboarding-steps{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.step-pill{background:var(--bg4);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:5px 14px;font-family:'DM Mono',monospace;font-size:.64rem;color:var(--text-dim);display:flex;align-items:center;gap:6px}
+.step-pill span{color:var(--gold);font-weight:700}
+
+/* BUTTONS ADMIN */
+.btn-sm{background:var(--surface2);border:1px solid rgba(255,255,255,.08);color:var(--text-mid);padding:6px 13px;border-radius:var(--r);font-family:'DM Mono',monospace;font-size:.67rem;transition:all var(--t)}
+.btn-sm:hover{border-color:var(--gold-border);color:var(--gold)}
+.btn-sm.danger:hover{border-color:rgba(192,57,43,.4);color:#e57e7e}
+.btn-sm.gold{background:var(--gold-dim);border-color:var(--gold-border);color:var(--gold)}
+.btn-sm.gold:hover{background:var(--gold);color:#000}
+.btn-sm.wpp{background:rgba(37,211,102,.08);border-color:rgba(37,211,102,.3);color:#25d366}
+.btn-sm.wpp:hover{background:rgba(37,211,102,.2)}
+.btn-add{display:flex;align-items:center;gap:8px;background:var(--gold);color:#000;padding:10px 20px;border-radius:var(--r);font-size:.76rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:all var(--t)}
+.btn-add:hover{background:var(--gold-light)}
+
+/* MODAL */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity var(--t)}
+.modal-backdrop.show{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--r2);width:100%;max-width:680px;max-height:92vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform var(--t)}
+.modal-backdrop.show .modal{transform:none}
+.modal-head{padding:26px 30px 18px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:2}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:300;color:var(--text)}
+.modal-close{background:none;color:var(--text-dim);font-size:1.25rem;transition:color var(--t)}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:0}
+.modal-foot{padding:18px 30px 26px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid rgba(255,255,255,.05);background:var(--bg2);position:sticky;bottom:0}
+.btn-modal-save{background:var(--gold);color:#000;padding:11px 26px;border-radius:var(--r);font-size:.76rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;transition:all var(--t)}
+.btn-modal-save:hover{background:var(--gold-light)}
+.btn-modal-save:disabled{opacity:.5;cursor:not-allowed}
+.btn-modal-cancel{background:none;border:1px solid rgba(255,255,255,.08);color:var(--text-dim);padding:11px 18px;border-radius:var(--r);font-size:.76rem;transition:all var(--t)}
+.btn-modal-cancel:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
+
+/* MODAL BLOCOS */
+.modal-section{padding:22px 30px;border-bottom:1px solid rgba(255,255,255,.04)}
+.modal-section:last-child{border-bottom:none}
+.modal-section-title{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-section-title::before{content:'';display:block;width:14px;height:1px;background:var(--gold)}
+.mgroup{margin-bottom:14px}
+.mlabel{display:block;font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
+.minput{width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,.07);color:var(--text);padding:11px 13px;border-radius:var(--r);font-size:.88rem;transition:border-color var(--t)}
+.minput:focus{border-color:var(--gold-border)}
+.minput:disabled{opacity:.5;cursor:not-allowed}
+.minput option{background:var(--bg3)}
+.minput::placeholder{color:var(--text-dim)}
+.mrow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mrow.three{grid-template-columns:1fr 1fr 1fr}
+.mhint{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--text-dim);margin-top:4px;opacity:.7}
+
+/* HORÁRIO VISUAL NO PAINEL */
+.schedule-editor{display:grid;gap:2px}
+.sch-row{background:var(--bg3);border:1px solid rgba(255,255,255,.05);border-radius:var(--r);padding:12px 16px;display:grid;grid-template-columns:100px auto;gap:12px;align-items:center;transition:border-color var(--t)}
+.sch-row.open{border-color:var(--gold-border)}
+.sch-row-day{font-family:'DM Mono',monospace;font-size:.75rem;color:var(--text-dim);display:flex;align-items:center;gap:10px;min-width:100px}
+.sch-row-day strong{color:var(--text);min-width:58px}
+.sch-toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.sch-toggle input{opacity:0;width:0;height:0;position:absolute}
+.sch-toggle-track{position:absolute;inset:0;background:var(--bg5);border-radius:20px;cursor:pointer;transition:background var(--t);border:1px solid rgba(255,255,255,.07)}
+.sch-toggle input:checked + .sch-toggle-track{background:var(--gold)}
+.sch-toggle-thumb{position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform var(--t);pointer-events:none}
+.sch-toggle input:checked ~ .sch-toggle-thumb{transform:translateX(16px)}
+.sch-row-times{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sch-time-group{display:flex;align-items:center;gap:6px}
+.sch-time-label{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--text-dim)}
+.sch-time-input{background:var(--bg4);border:1px solid rgba(255,255,255,.07);color:var(--text);padding:6px 10px;border-radius:var(--r);font-family:'DM Mono',monospace;font-size:.8rem;width:78px;transition:border-color var(--t)}
+.sch-time-input:focus{border-color:var(--gold-border)}
+.sch-time-input:disabled{opacity:.3}
+.sch-interval-sep{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--text-dim);padding:0 4px;white-space:nowrap}
+.sch-err{font-family:'DM Mono',monospace;font-size:.62rem;color:#e57e7e;margin-top:4px;display:none}
+
+/* BARBEIROS NO PAINEL */
+.barbers-editor{display:flex;flex-direction:column;gap:8px}
+.barber-row{background:var(--bg3);border:1px solid rgba(255,255,255,.05);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.barber-row-name{flex:1;min-width:120px}
+.barber-row-status{font-family:'DM Mono',monospace;font-size:.7rem;background:var(--bg4);border:1px solid rgba(255,255,255,.07);color:var(--text);padding:6px 10px;border-radius:var(--r)}
+.barber-remove{background:none;color:var(--text-dim);font-size:.9rem;padding:4px;border-radius:4px;transition:color var(--t)}
+.barber-remove:hover{color:#e57e7e}
+.add-barber-row{display:flex;gap:8px;align-items:center;margin-top:6px}
+
+/* SLUG PREVIEW */
+.slug-preview{margin-top:6px;font-family:'DM Mono',monospace;font-size:.64rem;color:var(--text-dim);background:var(--bg4);padding:7px 11px;border-radius:var(--r);border:1px solid rgba(255,255,255,.05);word-break:break-all}
+.slug-preview .slug-url{color:var(--gold)}
+.slug-badge{display:inline-block;font-family:'DM Mono',monospace;font-size:.58rem;padding:2px 8px;border-radius:10px;margin-left:6px}
+.slug-badge.ok{background:rgba(39,174,96,.15);color:#52d68a}
+.slug-badge.err{background:rgba(192,57,43,.15);color:#e57e7e}
+
+/* SERVIÇOS EDITOR */
+.services-editor{display:flex;flex-direction:column;gap:8px}
+.svc-editor-row{background:var(--bg3);border:1px solid rgba(255,255,255,.05);border-radius:var(--r);padding:12px 14px;display:grid;grid-template-columns:1fr 100px 80px 90px auto;gap:10px;align-items:center;transition:border-color var(--t)}
+.svc-editor-row:hover{border-color:var(--gold-border)}
+.svc-editor-row input,.svc-editor-row textarea,.svc-editor-row select{background:var(--bg4);border:1px solid rgba(255,255,255,.07);color:var(--text);padding:7px 10px;border-radius:var(--r);font-family:inherit;font-size:.8rem;transition:border-color var(--t);width:100%}
+.svc-editor-row input:focus,.svc-editor-row textarea:focus{border-color:var(--gold-border);outline:none}
+.svc-editor-row-label{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px}
+.svc-editor-col{display:flex;flex-direction:column}
+.svc-remove{background:none;color:var(--text-dim);font-size:.9rem;padding:4px 8px;border-radius:4px;transition:color var(--t);border:none;cursor:pointer}
+.svc-remove:hover{color:#e57e7e}
+.add-svc-row{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.svc-drag-handle{color:var(--text-dim);cursor:grab;font-size:.9rem;padding:0 4px;flex-shrink:0}
+@media(max-width:640px){.svc-editor-row{grid-template-columns:1fr 1fr;gap:8px}}
+
+/* TEMPLATE PREVIEW CARDS */
+.template-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:10px}
+.tpl-card{border:2px solid rgba(255,255,255,.07);border-radius:var(--r);padding:14px 12px;cursor:pointer;transition:all var(--t);position:relative;overflow:hidden}
+.tpl-card:hover{border-color:var(--gold-border)}
+.tpl-card.active{border-color:var(--gold);background:var(--gold-dim)}
+.tpl-card-preview{height:40px;border-radius:4px;margin-bottom:10px;position:relative;overflow:hidden}
+.tpl-card-name{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mid);margin-bottom:2px}
+.tpl-card-desc{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--text-dim);line-height:1.4}
+.tpl-check{position:absolute;top:8px;right:8px;color:var(--gold);font-size:.8rem;display:none}
+.tpl-card.active .tpl-check{display:block}
+
+/* OPÇÕES AVANÇADAS */
+.adv-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;padding:12px 0;font-family:'DM Mono',monospace;font-size:.72rem;color:var(--text-dim);transition:color var(--t)}
+.adv-toggle:hover{color:var(--text)}
+.adv-toggle-icon{transition:transform var(--t);display:inline-block}
+.adv-toggle.open .adv-toggle-icon{transform:rotate(90deg)}
+.adv-section{display:none;padding-top:4px}
+.adv-section.open{display:block}
+.gallery-url-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.gallery-url-row input{flex:1}
+.gallery-url-remove{background:none;color:var(--text-dim);border:none;cursor:pointer;font-size:.9rem;padding:4px 8px;border-radius:4px;transition:color var(--t)}
+.gallery-url-remove:hover{color:#e57e7e}
+.tag-input-wrap{display:flex;flex-wrap:wrap;gap:6px;background:var(--bg4);border:1px solid rgba(255,255,255,.07);border-radius:var(--r);padding:8px 10px;min-height:42px;align-items:center;cursor:text}
+.tag-input-wrap:focus-within{border-color:var(--gold-border)}
+.tag-chip{background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.66rem;display:flex;align-items:center;gap:5px}
+.tag-chip button{background:none;border:none;color:inherit;cursor:pointer;padding:0;font-size:.8rem;line-height:1}
+.tag-input-wrap input{background:none;border:none;outline:none;color:var(--text);font-family:'DM Mono',monospace;font-size:.75rem;min-width:120px;flex:1}
+
+/* WS STATUS */
+.ws-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--text-dim);margin-right:6px;vertical-align:middle;transition:background var(--t)}
+.ws-dot.live{background:#27ae60;box-shadow:0 0 8px rgba(39,174,96,.5);animation:wslive 2s ease-in-out infinite}
+@keyframes wslive{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* TABS */
+.tabs{display:flex;gap:2px;background:var(--bg4);border-radius:var(--r);padding:3px;margin-bottom:22px}
+.tab-btn{flex:1;padding:8px 16px;background:none;border-radius:calc(var(--r) - 2px);font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);transition:all var(--t)}
+.tab-btn.active{background:var(--bg2);color:var(--text);border:1px solid rgba(255,255,255,.06)}
+
+/* FILTROS */
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.filter-select{background:var(--bg4);border:1px solid rgba(255,255,255,.07);color:var(--text-dim);padding:7px 12px;border-radius:var(--r);font-family:'DM Mono',monospace;font-size:.7rem}
+.filter-select:focus{border-color:var(--gold-border);color:var(--text)}
+.filter-label{font-family:'DM Mono',monospace;font-size:.64rem;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase}
+
+
+/* ═══════════════════════════════════════════
+   TEMPLATE SYSTEM — variáveis por segmento
+═══════════════════════════════════════════ */
+
+/* BARBEARIA - Classic (default dark gold) */
+body.tpl-classic,body.tpl-dark,body.tpl-barber-red,body.tpl-barber-chrome{
+  --font-title:'Cormorant Garamond',serif;
+  --font-body:'Syne',sans-serif;
+  --font-mono:'DM Mono',monospace;
+}
+
+/* SALÃO FEMININO */
+body.tpl-salon-rose{
+  --gold:#e88fa0;--gold-light:#f5b8c4;--gold-dim:rgba(232,143,160,.12);
+  --gold-border:rgba(232,143,160,.28);--bg:#0e0508;--bg2:#160a10;
+  --bg3:#1e0e18;--bg4:#28121e;--bg5:#321622;--text:#f5e8ec;
+  --text-dim:#7a5060;--text-mid:#b07888;
+  --font-title:'Playfair Display',serif;
+  --font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-salon-blush{
+  --gold:#c06080;--gold-light:#d47090;--gold-dim:rgba(192,96,128,.1);
+  --gold-border:rgba(192,96,128,.25);--bg:#fdf5f7;--bg2:#fff0f3;
+  --bg3:#ffe8ed;--bg4:#ffd8e0;--bg5:#ffc8d3;--text:#2a0818;
+  --text-dim:#a06078;--text-mid:#783050;
+  --font-title:'Playfair Display',serif;
+  --font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-salon-gold{
+  --gold:#d4a855;--gold-light:#e8c070;--gold-dim:rgba(212,168,85,.12);
+  --gold-border:rgba(212,168,85,.28);--bg:#100c04;--bg2:#1a1408;
+  --bg3:#221c0c;--bg4:#2c2410;--bg5:#362c14;--text:#f5eddc;
+  --text-dim:#706040;--text-mid:#a08858;
+  --font-title:'Playfair Display',serif;
+  --font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-salon-lilac{
+  --gold:#b08ec8;--gold-light:#c8a8e0;--gold-dim:rgba(176,142,200,.12);
+  --gold-border:rgba(176,142,200,.28);--bg:#080514;--bg2:#100a1e;
+  --bg3:#180f28;--bg4:#201432;--bg5:#28193c;--text:#ede8f5;
+  --text-dim:#605080;--text-mid:#9070b0;
+  --font-title:'Playfair Display',serif;
+  --font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+
+/* ESTÉTICA & BELEZA */
+body.tpl-estetica-nude{
+  --gold:#c8a882;--gold-light:#e0c09a;--gold-dim:rgba(200,168,130,.12);
+  --gold-border:rgba(200,168,130,.28);--bg:#0e0c08;--bg2:#181410;
+  --bg3:#221c18;--bg4:#2c2420;--bg5:#362c28;--text:#f0e8de;
+  --text-dim:#706050;--text-mid:#a09070;
+  --font-title:'Playfair Display',serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-estetica-pink{
+  --gold:#e060a0;--gold-light:#f080b8;--gold-dim:rgba(224,96,160,.1);
+  --gold-border:rgba(224,96,160,.25);--bg:#0e0408;--bg2:#180810;
+  --bg3:#220c18;--bg4:#2c1020;--bg5:#361428;--text:#f5e0ee;
+  --text-dim:#704060;--text-mid:#b06090;
+  --font-title:'Playfair Display',serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-estetica-spa{
+  --gold:#80b890;--gold-light:#98d0a8;--gold-dim:rgba(128,184,144,.1);
+  --gold-border:rgba(128,184,144,.25);--bg:#060e08;--bg2:#0c1610;
+  --bg3:#101e14;--bg4:#162618;--bg5:#1c2e1e;--text:#e0eee0;
+  --text-dim:#406050;--text-mid:#609070;
+  --font-title:'Playfair Display',serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+
+/* MANICURE */
+body.tpl-manicure-pastel{
+  --gold:#d4809c;--gold-light:#e898b0;--gold-dim:rgba(212,128,156,.1);
+  --gold-border:rgba(212,128,156,.25);--bg:#0c0608;--bg2:#160c10;
+  --bg3:#1e1018;--bg4:#281420;--bg5:#321828;--text:#f5e8ee;
+  --text-dim:#704060;--text-mid:#a06080;
+  --font-title:'Playfair Display',serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-manicure-chic{
+  --gold:#c0a060;--gold-light:#d8b878;--gold-dim:rgba(192,160,96,.1);
+  --gold-border:rgba(192,160,96,.25);--bg:#0a0806;--bg2:#141008;
+  --bg3:#1c160c;--bg4:#241c10;--bg5:#2c2214;--text:#f0ece0;
+  --text-dim:#686040;--text-mid:#989060;
+  --font-title:'Playfair Display',serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+
+/* ODONTOLOGIA */
+body.tpl-odonto-white{
+  --gold:#2080c0;--gold-light:#3898d8;--gold-dim:rgba(32,128,192,.1);
+  --gold-border:rgba(32,128,192,.22);--bg:#f0f8ff;--bg2:#e8f4fe;
+  --bg3:#ddeef8;--bg4:#cce4f4;--bg5:#b8d8ee;--text:#0a1e2e;
+  --text-dim:#4a6880;--text-mid:#1a4060;
+  --font-title:'Playfair Display',serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-odonto-mint{
+  --gold:#1a9060;--gold-light:#28a870;--gold-dim:rgba(26,144,96,.1);
+  --gold-border:rgba(26,144,96,.22);--bg:#f0faf5;--bg2:#e4f5ec;
+  --bg3:#d4eee0;--bg4:#c0e4d0;--bg5:#a8d8bc;--text:#082010;
+  --text-dim:#386048;--text-mid:#0c4820;
+  --font-title:'Playfair Display',serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-odonto-dark{
+  --gold:#40b0d0;--gold-light:#58c8e8;--gold-dim:rgba(64,176,208,.1);
+  --gold-border:rgba(64,176,208,.22);--bg:#040c10;--bg2:#081420;
+  --bg3:#0c1c2c;--bg4:#102438;--bg5:#142c44;--text:#d8eef8;
+  --text-dim:#406080;--text-mid:#6090b0;
+  --font-title:'Inter',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+
+/* TATUAGEM */
+body.tpl-tattoo-ink{
+  --gold:#c8c0b0;--gold-light:#e0d8c8;--gold-dim:rgba(200,192,176,.08);
+  --gold-border:rgba(200,192,176,.2);--bg:#030303;--bg2:#080808;
+  --bg3:#0d0d0d;--bg4:#121212;--bg5:#181818;--text:#e8e4dc;
+  --text-dim:#505050;--text-mid:#909090;
+  --font-title:'Cormorant Garamond',serif;--font-body:'Syne',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-tattoo-neon{
+  --gold:#a050f0;--gold-light:#c070ff;--gold-dim:rgba(160,80,240,.12);
+  --gold-border:rgba(160,80,240,.3);--bg:#04020e;--bg2:#080418;
+  --bg3:#0c0620;--bg4:#100828;--bg5:#140a30;--text:#e8d8ff;
+  --text-dim:#504080;--text-mid:#9060c0;
+  --font-title:'Syne',sans-serif;--font-body:'Syne',sans-serif;--font-mono:'DM Mono',monospace;
+}
+
+/* CONSULTÓRIO / CLÍNICA */
+body.tpl-clinic-clean{
+  --gold:#1a5096;--gold-light:#2468b4;--gold-dim:rgba(26,80,150,.1);
+  --gold-border:rgba(26,80,150,.22);--bg:#f8fbff;--bg2:#eef5fc;
+  --bg3:#e0edf8;--bg4:#cce0f0;--bg5:#b4d0e8;--text:#08182c;
+  --text-dim:#405870;--text-mid:#0c3060;
+  --font-title:'Playfair Display',serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-clinic-pro{
+  --gold:#2060a0;--gold-light:#2878c0;--gold-dim:rgba(32,96,160,.1);
+  --gold-border:rgba(32,96,160,.22);--bg:#060c14;--bg2:#0c1420;
+  --bg3:#101c2c;--bg4:#162438;--bg5:#1c2c44;--text:#d0e4f4;
+  --text-dim:#3a5870;--text-mid:#5880a8;
+  --font-title:'Inter',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+
+/* ASSISTÊNCIA TÉCNICA */
+body.tpl-tech-slate{
+  --gold:#5a88b4;--gold-light:#70a0cc;--gold-dim:rgba(90,136,180,.1);
+  --gold-border:rgba(90,136,180,.22);--bg:#080c10;--bg2:#101418;
+  --bg3:#181c22;--bg4:#20242a;--bg5:#282c32;--text:#d0dce8;
+  --text-dim:#4a5868;--text-mid:#7090a8;
+  --font-title:'Syne',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-tech-neon{
+  --gold:#00e0c0;--gold-light:#20f8d8;--gold-dim:rgba(0,224,192,.08);
+  --gold-border:rgba(0,224,192,.25);--bg:#020810;--bg2:#041018;
+  --bg3:#061820;--bg4:#082028;--bg5:#0a2830;--text:#d0f8f4;
+  --text-dim:#306860;--text-mid:#50a898;
+  --font-title:'Syne',sans-serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+
+/* OFICINA */
+body.tpl-oficina-steel{
+  --gold:#c08840;--gold-light:#d8a058;--gold-dim:rgba(192,136,64,.1);
+  --gold-border:rgba(192,136,64,.25);--bg:#060606;--bg2:#0e0e0e;
+  --bg3:#161616;--bg4:#1e1e1e;--bg5:#262626;--text:#e8e0d4;
+  --text-dim:#585040;--text-mid:#988060;
+  --font-title:'Syne',sans-serif;--font-body:'Syne',sans-serif;--font-mono:'DM Mono',monospace;
+}
+
+/* PET SHOP */
+body.tpl-pet-fresh{
+  --gold:#2898d0;--gold-light:#40b0e8;--gold-dim:rgba(40,152,208,.1);
+  --gold-border:rgba(40,152,208,.25);--bg:#f4fbff;--bg2:#e8f5fd;
+  --bg3:#d8eef8;--bg4:#c4e4f4;--bg5:#acd6ee;--text:#082038;
+  --text-dim:#3a6080;--text-mid:#0a4068;
+  --font-title:'Playfair Display',serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-pet-warm{
+  --gold:#d07030;--gold-light:#e88848;--gold-dim:rgba(208,112,48,.1);
+  --gold-border:rgba(208,112,48,.25);--bg:#0a0604;--bg2:#140e08;
+  --bg3:#1e160c;--bg4:#281e10;--bg5:#322614;--text:#f0e4d4;
+  --text-dim:#685040;--text-mid:#a07848;
+  --font-title:'Playfair Display',serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+
+/* Barbearia Red & Chrome */
+body.tpl-barber-red{
+  --gold:#cc2b2b;--gold-light:#e84040;--gold-dim:rgba(204,43,43,.1);
+  --gold-border:rgba(204,43,43,.25);--bg:#060202;--bg2:#0e0404;
+  --bg3:#160606;--bg4:#1e0808;--bg5:#260a0a;--text:#f0e8e8;
+  --text-dim:#604040;--text-mid:#a06060;
+}
+body.tpl-barber-chrome{
+  --gold:#9ba8b4;--gold-light:#bac8d4;--gold-dim:rgba(155,168,180,.1);
+  --gold-border:rgba(155,168,180,.22);--bg:#080a0c;--bg2:#101416;
+  --bg3:#181e20;--bg4:#202628;--bg5:#282e32;--text:#d8e0e4;
+  --text-dim:#505860;--text-mid:#808890;
+}
+body.tpl-dark{
+  --gold:#e8e8e8;--gold-light:#ffffff;--gold-dim:rgba(232,232,232,.08);
+  --gold-border:rgba(232,232,232,.15);--bg:#020202;--bg2:#080808;
+  --bg3:#0e0e0e;--bg4:#141414;--bg5:#1a1a1a;--text:#f0f0f0;
+  --text-dim:#505050;--text-mid:#909090;
+}
+
+/* Minimal & Law */
+body.tpl-minimal{
+  --gold:#333333;--gold-light:#555555;--gold-dim:rgba(51,51,51,.08);
+  --gold-border:rgba(51,51,51,.2);--bg:#f8f8f8;--bg2:#f0f0f0;
+  --bg3:#e8e8e8;--bg4:#ddd;--bg5:#ccc;--text:#111111;
+  --text-dim:#666;--text-mid:#444;
+  --font-title:'Playfair Display',serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-law-navy{
+  --gold:#4a7fc1;--gold-light:#6098d8;--gold-dim:rgba(74,127,193,.1);
+  --gold-border:rgba(74,127,193,.22);--bg:#020610;--bg2:#060c1c;
+  --bg3:#0a1228;--bg4:#0e1834;--bg5:#121e40;--text:#d0daf0;
+  --text-dim:#3a4870;--text-mid:#6070a8;
+  --font-title:'Playfair Display',serif;--font-body:'Inter',sans-serif;--font-mono:'DM Mono',monospace;
+}
+body.tpl-law-dark{
+  --gold:#c8a45a;--gold-light:#e0bc72;--gold-dim:rgba(200,164,90,.1);
+  --gold-border:rgba(200,164,90,.22);--bg:#040404;--bg2:#0a0a0a;
+  --bg3:#101010;--bg4:#161616;--bg5:#1c1c1c;--text:#ece8e0;
+  --text-dim:#646050;--text-mid:#989070;
+  --font-title:'Cormorant Garamond',serif;--font-body:'Syne',sans-serif;--font-mono:'DM Mono',monospace;
+}
+
+/* Apply template fonts globally */
+body[class*="tpl-"]{font-family:var(--font-body,'Syne',sans-serif)}
+body[class*="tpl-"] .hero h1,
+body[class*="tpl-"] .sec-title,
+body[class*="tpl-"] .svc-name,
+body[class*="tpl-"] .about-badge-n,
+body[class*="tpl-"] .nav-logo,
+body[class*="tpl-"] .footer-logo{font-family:var(--font-title,'Cormorant Garamond',serif)}
+body[class*="tpl-"] .flabel,
+body[class*="tpl-"] .finput,
+body[class*="tpl-"] .slot-btn,
+body[class*="tpl-"] .svc-desc,
+body[class*="tpl-"] .svc-dur,
+body[class*="tpl-"] .hero-tag,
+body[class*="tpl-"] .hero-desc,
+body[class*="tpl-"] .sec-label,
+body[class*="tpl-"] .sch-day-name,
+body[class*="tpl-"] .footer-copy{font-family:var(--font-mono,'DM Mono',monospace)}
+
+/* Light template adaptations */
+body.tpl-salon-blush .nav,
+body.tpl-odonto-white .nav,
+body.tpl-odonto-mint .nav,
+body.tpl-clinic-clean .nav,
+body.tpl-pet-fresh .nav,
+body.tpl-minimal .nav{
+  background:rgba(255,255,255,.9);border-bottom:1px solid var(--gold-border);
+}
+body.tpl-salon-blush .hero-overlay,
+body.tpl-odonto-white .hero-overlay,
+body.tpl-odonto-mint .hero-overlay,
+body.tpl-clinic-clean .hero-overlay,
+body.tpl-pet-fresh .hero-overlay,
+body.tpl-minimal .hero-overlay{background:linear-gradient(160deg,rgba(255,255,255,.3) 0%,var(--bg) 70%)}
+
+/* Melhoria visual: cards de serviço com hover mais suave */
+.svc-card{transition:background var(--t),transform .2s ease,box-shadow .2s ease}
+.svc-card:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+
+/* Booking form melhorado */
+.booking-steps{display:flex;gap:0;margin-bottom:36px;border:1px solid var(--gold-border);border-radius:var(--r2);overflow:hidden}
+.booking-step{flex:1;padding:14px 10px;text-align:center;background:var(--bg3);border-right:1px solid var(--gold-border);transition:all var(--t)}
+.booking-step:last-child{border-right:none}
+.booking-step.active{background:var(--gold-dim)}
+.booking-step.done{background:var(--success-dim)}
+.booking-step-num{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--text-dim);margin-bottom:3px}
+.booking-step-label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
+.booking-step.active .booking-step-label{color:var(--gold)}
+.booking-step.done .booking-step-label{color:var(--success)}
+
+/* Horário selecionado destaque */
+.slot-btn.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700;transform:scale(1.05);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+
+/* Slot grid melhorado */
+.slots-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;min-height:56px;align-items:flex-start;padding:12px;background:var(--bg3);border-radius:var(--r);border:1px solid rgba(255,255,255,.06)}
+
+/* Form message boxes */
+.form-msg{padding:12px 16px;border-radius:var(--r);font-family:'DM Mono',monospace;font-size:.78rem;margin-top:12px;display:none}
+.form-msg.err{background:var(--danger-dim);border:1px solid rgba(192,57,43,.3);color:#e57e7e}
+.form-msg.ok{background:var(--success-dim);border:1px solid rgba(39,174,96,.3);color:#52d68a}
+.form-msg.show{display:block}
+
+/* Navbar melhorado */
+.nav{transition:background var(--t),box-shadow var(--t)}
+.nav.scrolled{background:rgba(8,8,8,.97);box-shadow:0 4px 20px rgba(0,0,0,.5)}
+
+/* Footer melhorado */
+.footer{padding:56px 6% 36px;border-top:1px solid var(--gold-border)}
+.footer-inner{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:start}
+.footer-left{}
+.footer-logo{font-family:var(--font-title,'Cormorant Garamond',serif);font-size:1.4rem;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}
+.footer-tagline{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--text-dim);margin-bottom:16px}
+.footer-addr{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--text-dim);line-height:1.7;display:flex;align-items:center;gap:8px}
+.footer-right{text-align:right}
+.footer-copy{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--text-dim)}
+.footer-instagram{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:.68rem;color:var(--text-dim);transition:color var(--t);margin-bottom:8px}
+.footer-instagram:hover{color:var(--gold)}
+.footer-wpp{display:inline-flex;align-items:center;gap:6px;background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.25);color:#25d366;padding:8px 16px;border-radius:var(--r);font-family:'DM Mono',monospace;font-size:.7rem;transition:all var(--t);margin-top:8px}
+.footer-wpp:hover{background:rgba(37,211,102,.22)}
+
+/* Melhorias responsivas mobile */
+@media(max-width:640px){
+  .footer-inner{grid-template-columns:1fr}
+  .footer-right{text-align:left}
+  .booking-steps{display:none}
+  .slots-grid{padding:8px}
+}
+
+/* Seção de barbeiros mais elegante */
+.barbers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:24px}
+.barber-card{background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:var(--r2);padding:32px 24px;text-align:center;transition:all var(--t)}
+.barber-card:hover{border-color:var(--gold-border);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.4)}
+.barber-avatar{width:80px;height:80px;border-radius:50%;background:var(--bg4);border:2px solid var(--gold-border);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:2rem;overflow:hidden;transition:border-color var(--t)}
+.barber-card:hover .barber-avatar{border-color:var(--gold)}
+.barber-name{font-family:var(--font-title,'Cormorant Garamond',serif);font-size:1.1rem;font-weight:600;color:var(--text);margin-bottom:6px}
+.barber-bio{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--text-dim);line-height:1.6}
+
+/* Admin premium styles */
+.stat-card{position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:-40px;right:-40px;width:100px;height:100px;border-radius:50%;background:var(--gold-dim);pointer-events:none}
+
+/* Better table */
+tbody tr:last-child td:first-child{border-bottom-left-radius:var(--r)}
+tbody tr:last-child td:last-child{border-bottom-right-radius:var(--r)}
+
+/* Client card improvements */
+.client-card{position:relative}
+.client-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:transparent;border-radius:var(--r) 0 0 var(--r);transition:background var(--t)}
+.client-card:hover::before{background:var(--gold)}
+
+/* Tipo de negócio badge */
+.business-type-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold)}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.stats-row{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){
+  .about-grid{grid-template-columns:1fr}
+  .about-visual{max-height:260px}
+  .about-badge{display:none}
+  .schedule-grid{grid-template-columns:repeat(4,1fr)}
+  .adm-content{padding:20px}
+  .adm-header{padding:20px}
+  .clients-grid{grid-template-columns:1fr}
+  .sidebar{width:200px}
+}
+@media(max-width:640px){
+  .form-row{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .schedule-grid{grid-template-columns:repeat(3,1fr)}
+  .mrow{grid-template-columns:1fr}
+  .mrow.three{grid-template-columns:1fr}
+  .hero{padding-bottom:80px}
+  .client-card-body{grid-template-columns:1fr}
+  .sch-row{grid-template-columns:1fr}
+  .sch-row-times{gap:6px}
+  .modal{max-width:100%;margin:10px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="ls-logo">Agendamento</div>
+  <div class="ls-line"></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-box"></div>
+
+<!-- ════════════════════════════════════════
+     SITE PÚBLICO
+════════════════════════════════════════ -->
+<div id="pub">
+
+  <nav class="nav">
+    <div class="nav-logo" id="nav-brand"></div>
+    <div class="nav-links">
+      <a href="#servicos">Serviços</a>
+      <a href="#barbers-wrap" id="nav-barbers-link" style="display:none">Equipe</a>
+      <a href="#sobre">Sobre</a>
+      <a href="#horarios">Horários</a>
+      <a href="#booking">Agendar</a>
+    </div>
+    <a href="#booking" class="nav-btn">Agendar</a>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-grain"></div>
+    <div class="hero-content">
+      <div class="hero-tag" id="hero-tag"></div>
+      <h1 id="hero-title">ARTE &amp;<br><em>Precisão</em></h1>
+      <p class="hero-desc" id="hero-desc">Excelência em cada detalhe.</p>
+      <div class="hero-ctas">
+        <a href="#booking" class="btn-primary" id="hero-cta">Agendar Agora</a>
+        <a href="#servicos" class="btn-outline">Ver Serviços</a>
+      </div>
+    </div>
+    <div class="hero-scroll">Scroll</div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- GALERIA -->
+  <div id="gallery-wrap">
+    <div class="gallery-inner">
+      <div class="sec-label">Galeria</div>
+      <div class="sec-title">Nossa <em>Estrutura</em></div>
+      <div class="gallery-grid" id="gallery-grid"></div>
+    </div>
+  </div>
+  <hr class="divider" id="gallery-divider" style="display:none"/>
+
+  <!-- SERVIÇOS -->
+  <div id="services-wrap">
+    <div class="services-inner">
+      <div class="sec-label">O que oferecemos</div>
+      <div class="sec-title" id="servicos">Nossos <em>Serviços</em></div>
+      <div class="services-grid" id="services-grid"></div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <!-- EQUIPE -->
+  <div id="barbers-wrap">
+    <div class="barbers-inner">
+      <div class="sec-label">Nossa Equipe</div>
+      <div class="sec-title">Nossa <em>Equipe</em></div>
+      <div class="barbers-grid" id="barbers-grid"></div>
+    </div>
+  </div>
+  <hr class="divider" id="barbers-divider" style="display:none"/>
+
+  <!-- SOBRE -->
+  <div class="sec" id="sobre">
+    <div class="sec-label">Sobre nós</div>
+    <div class="sec-title">Nossa <em>História</em></div>
+    <div class="about-grid">
+      <div class="about-visual" id="about-visual">
+        <div class="about-icon" id="about-icon">✨</div>
+        <div class="about-corner tl">Est.</div>
+        <div class="about-corner br">Since</div>
+        <div class="about-badge">
+          <div class="about-badge-n">10+</div>
+          <div class="about-badge-t">Anos</div>
+        </div>
+      </div>
+      <div class="about-text">
+        <p id="about-desc">Carregando...</p>
+        <div class="about-addr" id="about-addr" style="display:none">
+          <div class="about-addr-icon">📍</div>
+          <div class="about-addr-txt" id="addr-txt"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <!-- HORÁRIOS -->
+  <div class="sec">
+    <div class="sec-label">Funcionamento</div>
+    <div class="sec-title" id="horarios">Nossos <em>Horários</em></div>
+    <div class="schedule-grid" id="schedule-grid"></div>
+  </div>
+
+  <hr class="divider"/>
+
+  <!-- BOOKING -->
+  <div id="booking-wrap">
+    <div class="booking-inner" id="booking">
+      <div class="sec-label">Marque sua vez</div>
+      <div class="sec-title" id="booking-title">Agendar <em>Agora</em></div>
+
+      <div class="booking-steps">
+        <div class="booking-step done" id="step-service"><div class="booking-step-num">01</div><div class="booking-step-label">Serviço</div></div>
+        <div class="booking-step" id="step-date"><div class="booking-step-num">02</div><div class="booking-step-label">Data & Horário</div></div>
+        <div class="booking-step" id="step-contact"><div class="booking-step-num">03</div><div class="booking-step-label">Seus Dados</div></div>
+        <div class="booking-step" id="step-confirm"><div class="booking-step-num">04</div><div class="booking-step-label">Confirmar</div></div>
+      </div>
+      <div class="form-row">
+        <div class="fgroup">
+          <label class="flabel">Seu nome</label>
+          <input class="finput" id="bk-name" type="text" placeholder="Nome completo" autocomplete="name"/>
+        </div>
+        <div class="fgroup">
+          <label class="flabel">WhatsApp</label>
+          <input class="finput" id="bk-phone" type="tel" placeholder="(11) 99999-9999" autocomplete="tel"/>
+          <div class="phone-hint">Somente números, com DDD</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fgroup">
+          <label class="flabel">Serviço</label>
+          <select class="finput" id="bk-service"><option value="">Selecione...</option></select>
+        </div>
+        <div class="fgroup">
+          <label class="flabel">Data</label>
+          <input class="finput" id="bk-date" type="date"/>
+        </div>
+      </div>
+      <div class="form-row full" id="bk-barber-wrap" style="display:none">
+        <div class="fgroup">
+          <label class="flabel" id="bk-barber-label">Profissional (opcional)</label>
+          <select class="finput" id="bk-barber"><option value="">Qualquer profissional</option></select>
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="fgroup">
+          <label class="flabel">Horário disponível</label>
+          <div class="slots-grid" id="bk-slots">
+            <span class="slot-empty">Selecione uma data e serviço</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-msg" id="bk-msg"></div>
+      <div class="form-submit">
+        <button class="btn-primary" id="bk-submit" style="width:100%;padding:16px;font-size:.82rem;letter-spacing:.14em;justify-content:center;display:flex;align-items:center;gap:10px">
+          <span id="bk-submit-icon">✓</span>
+          <span id="bk-submit-txt">Confirmar Agendamento</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-logo" id="footer-logo"></div>
+        <div class="footer-tagline" id="footer-tagline"></div>
+        <div class="footer-addr" id="footer-addr" style="display:none">
+          <span>📍</span><span id="footer-addr-txt"></span>
+        </div>
+      </div>
+      <div class="footer-right">
+        <div id="footer-instagram-wrap" style="display:none">
+          <a class="footer-instagram" id="footer-instagram" href="#" target="_blank" rel="noopener">
+            <span>📸</span><span id="footer-instagram-handle"></span>
+          </a>
+        </div>
+        <div>
+          <a class="footer-wpp" id="footer-wpp" href="#booking">📅 Agendar agora</a>
+        </div>
+        <div class="footer-copy" style="margin-top:12px">© <span id="footer-year"></span> — Todos os direitos reservados</div>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /pub -->
+
+<!-- ════════════════════════════════════════
+     ADMIN
+════════════════════════════════════════ -->
+<div id="admin">
+
+  <div id="adm-login">
+    <div class="login-box">
+      <div class="login-brand">NGB SaaS</div>
+      <div class="login-sub">Painel Administrativo</div>
+      <input class="login-input" id="adm-user" type="text" placeholder="Usuário" autocomplete="username"/>
+      <input class="login-input" id="adm-pass" type="password" placeholder="Senha" autocomplete="current-password"/>
+      <button class="login-btn" id="adm-login-btn">Entrar</button>
+    </div>
+  </div>
+
+  <div id="adm-dash">
+    <div class="adm-layout">
+
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          NGB SaaS
+          <span>Painel Admin v3.0</span>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="sn-group">Geral</div>
+          <div class="sn-item active" data-page="overview">
+            <span class="sn-icon">◈</span>
+            <span class="sn-label">Visão Geral</span>
+          </div>
+          <div class="sn-group">Operação</div>
+          <div class="sn-item" data-page="clients">
+            <span class="sn-icon">◉</span>
+            <span class="sn-label">Estabelecimentos</span>
+          </div>
+          <div class="sn-item" data-page="appointments">
+            <span class="sn-icon">◷</span>
+            <span class="sn-label">Agendamentos</span>
+          </div>
+          <div class="sn-group">Marketing</div>
+          <div class="sn-item" data-page="links">
+            <span class="sn-icon">⬡</span>
+            <span class="sn-label">Links & Divulgação</span>
+          </div>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="adm-user" id="adm-user-info">admin</div>
+          <div class="adm-logout" id="adm-logout-btn">Sair →</div>
+        </div>
+      </aside>
+
+      <main class="adm-main">
+        <div class="adm-header">
+          <div>
+            <div class="adm-page-title" id="adm-title">Visão Geral</div>
+            <div class="adm-page-sub">
+              <span class="ws-dot live" id="ws-dot"></span>
+              <span id="ws-label">Online</span>
+            </div>
+          </div>
+          <div id="adm-header-action"></div>
+        </div>
+        <div class="adm-content" id="adm-page"></div>
+      </main>
+
+    </div>
+  </div>
+
+</div><!-- /admin -->
+
+<!-- ════════════════════════════════════════
+     MODAL CLIENTE (Estabelecimento)
+════════════════════════════════════════ -->
+<div class="modal-backdrop" id="client-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">Novo Cadastro</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- BLOCO: Dados Gerais -->
+      <div class="modal-section">
+        <div class="modal-section-title">Dados Gerais</div>
+        <div class="mrow">
+          <div class="mgroup">
+            <label class="mlabel">Nome do Estabelecimento *</label>
+            <input class="minput" id="m-nome" type="text" placeholder="Ex: Salão da Ana" oninput="autoSlug()"/>
+          </div>
+          <div class="mgroup">
+            <label class="mlabel">Slug (URL) *</label>
+            <input class="minput" id="m-slug" type="text" placeholder="salao-da-ana"
+              oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,''); updateSlugPreview()"/>
+            <div class="slug-preview" id="slug-preview" style="display:none"></div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <label class="mlabel">Descrição</label>
+          <textarea class="minput" id="m-desc" rows="3" placeholder="Descreva o estabelecimento..."></textarea>
+        </div>
+        <div class="mrow">
+          <div class="mgroup">
+            <label class="mlabel">Status</label>
+            <select class="minput" id="m-status">
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+            </select>
+          </div>
+          <div class="mgroup">
+            <label class="mlabel">Tipo de Negócio</label>
+            <select class="minput" id="m-business-type" onchange="updateTemplateGrid()">
+              <option value="barbearia">✂ Barbearia</option>
+              <option value="salao">💅 Salão Feminino</option>
+              <option value="estetica">✨ Clínica Estética</option>
+              <option value="manicure">💅 Manicure & Nail Art</option>
+              <option value="odontologia">🦷 Odontologia</option>
+              <option value="tatuagem">🎨 Studio de Tatuagem</option>
+              <option value="consultorio">🏥 Consultório Médico</option>
+              <option value="assistencia">🔧 Assistência Técnica</option>
+              <option value="oficina">🚗 Oficina Mecânica</option>
+              <option value="petshop">🐾 Pet Shop</option>
+              <option value="outro">🏢 Outro Segmento</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOCO: Contato -->
+      <div class="modal-section">
+        <div class="modal-section-title">Contato & Localização</div>
+        <div class="mrow">
+          <div class="mgroup">
+            <label class="mlabel">WhatsApp *</label>
+            <input class="minput" id="m-phone" type="tel" placeholder="5511999999999"/>
+            <div class="mhint">Somente números com DDI (ex: 5511999999999)</div>
+          </div>
+          <div class="mgroup">
+            <label class="mlabel">Endereço</label>
+            <input class="minput" id="m-addr" type="text" placeholder="Rua, número - Bairro, Cidade - UF"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOCO: Visual -->
+      <div class="modal-section">
+        <div class="modal-section-title">Visual & Mídia</div>
+        <div class="mrow">
+          <div class="mgroup">
+            <label class="mlabel">Cor Primária</label>
+            <input class="minput" id="m-c1" type="color" value="#1a1a2e" style="height:42px;cursor:pointer"/>
+          </div>
+          <div class="mgroup">
+            <label class="mlabel">Cor Secundária (Destaque)</label>
+            <input class="minput" id="m-c2" type="color" value="#c9a84c" style="height:42px;cursor:pointer"/>
+          </div>
+        </div>
+        <div class="mrow">
+          <div class="mgroup">
+            <label class="mlabel">URL do Logo</label>
+            <input class="minput" id="m-logo" type="url" placeholder="https://..."/>
+          </div>
+          <div class="mgroup">
+            <label class="mlabel">URL do Banner (Hero)</label>
+            <input class="minput" id="m-banner" type="url" placeholder="https://..."/>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOCO: Template Visual -->
+      <div class="modal-section">
+        <div class="modal-section-title">Template do Site</div>
+        <div class="mhint" style="margin-bottom:10px">Escolha o estilo visual para o site público. Muda cores, textos e identidade.</div>
+        <div class="template-grid" id="template-grid">
+          <!-- preenchido por JS -->
+        </div>
+        <input type="hidden" id="m-template"/>
+      </div>
+
+      <!-- BLOCO: Serviços -->
+      <div class="modal-section">
+        <div class="modal-section-title">Serviços & Preços</div>
+        <div class="mhint" style="margin-bottom:12px">Adicione os serviços com nome, descrição, preço e duração em minutos.</div>
+        <div class="services-editor" id="services-editor"></div>
+        <div class="add-svc-row">
+          <input class="minput" id="new-svc-name" type="text" placeholder="Nome do serviço" style="flex:2;min-width:140px"/>
+          <input class="minput" id="new-svc-price" type="number" placeholder="Preço (R$)" step="0.50" min="0" style="flex:1;min-width:90px"/>
+          <input class="minput" id="new-svc-dur" type="number" placeholder="Min" min="5" step="5" value="30" style="flex:1;min-width:70px"/>
+          <button class="btn-sm gold" onclick="addSvcRow()">＋ Serviço</button>
+        </div>
+      </div>
+
+      <!-- BLOCO: Horários -->
+      <div class="modal-section">
+        <div class="modal-section-title">Horários de Funcionamento</div>
+        <div class="mhint" style="margin-bottom:12px">Ative os dias e defina os horários. O intervalo é opcional (ex: almoço).</div>
+        <div class="schedule-editor" id="schedule-editor"></div>
+        <div id="schedule-err" class="mhint" style="color:#e57e7e;margin-top:8px;display:none"></div>
+      </div>
+
+      <!-- BLOCO: Equipe (Barbeiros / Profissionais) -->
+      <div class="modal-section">
+        <div class="modal-section-title" id="team-section-title">Equipe / Profissionais</div>
+        <div class="mhint" style="margin-bottom:12px">Se não cadastrar profissionais, o agendamento continua funcionando normalmente.</div>
+        <div class="barbers-editor" id="barbers-editor"></div>
+        <div class="add-barber-row">
+          <input class="minput" id="new-barber-name" type="text" placeholder="Nome do profissional" style="flex:1"/>
+          <button class="btn-sm gold" onclick="addBarberRow()">＋ Adicionar</button>
+        </div>
+      </div>
+
+      <!-- BLOCO: Opções Avançadas -->
+      <div class="modal-section">
+        <div class="modal-section-title">Opções Avançadas</div>
+
+        <!-- Galeria de Fotos -->
+        <div class="mgroup">
+          <div class="adv-toggle" onclick="toggleAdv('galeria')" id="adv-toggle-galeria">
+            <span class="adv-toggle-icon">▶</span>
+            <span>Galeria de Fotos</span>
+            <span class="mhint" style="margin:0;opacity:.6" id="adv-galeria-count"></span>
+          </div>
+          <div class="adv-section" id="adv-galeria">
+            <div class="mhint" style="margin-bottom:10px">Adicione URLs de imagens para mostrar uma galeria no site (mín. 2 para aparecer).</div>
+            <div id="gallery-urls-list"></div>
+            <div style="display:flex;gap:8px;margin-top:6px">
+              <input class="minput" id="new-gallery-url" type="url" placeholder="https://i.imgur.com/..." style="flex:1"/>
+              <button class="btn-sm gold" onclick="addGalleryUrl()">＋ Foto</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEO -->
+        <div class="mgroup">
+          <div class="adv-toggle" onclick="toggleAdv('seo')" id="adv-toggle-seo">
+            <span class="adv-toggle-icon">▶</span>
+            <span>SEO & Redes Sociais</span>
+          </div>
+          <div class="adv-section" id="adv-seo">
+            <div class="mrow">
+              <div class="mgroup">
+                <label class="mlabel">Título da Página (meta title)</label>
+                <input class="minput" id="m-meta-title" type="text" placeholder="Ex: Salão da Ana – Agendamento Online"/>
+              </div>
+              <div class="mgroup">
+                <label class="mlabel">Instagram (@ sem @)</label>
+                <input class="minput" id="m-instagram" type="text" placeholder="meuestablecimento"/>
+              </div>
+            </div>
+            <div class="mgroup">
+              <label class="mlabel">Descrição SEO (meta description)</label>
+              <textarea class="minput" id="m-meta-desc" rows="2" placeholder="Breve descrição para aparecer no Google..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Configurações de Agendamento -->
+        <div class="mgroup">
+          <div class="adv-toggle" onclick="toggleAdv('booking-cfg')" id="adv-toggle-booking-cfg">
+            <span class="adv-toggle-icon">▶</span>
+            <span>Configurações de Agendamento</span>
+          </div>
+          <div class="adv-section" id="adv-booking-cfg">
+            <div class="mrow three">
+              <div class="mgroup">
+                <label class="mlabel">Intervalo entre slots (min)</label>
+                <input class="minput" id="m-slot-interval" type="number" min="5" step="5" value="30" placeholder="30"/>
+                <div class="mhint">Padrão: 30 minutos</div>
+              </div>
+              <div class="mgroup">
+                <label class="mlabel">Dias futuros disponíveis</label>
+                <input class="minput" id="m-booking-days" type="number" min="1" max="90" value="30" placeholder="30"/>
+                <div class="mhint">Padrão: 30 dias</div>
+              </div>
+              <div class="mgroup">
+                <label class="mlabel">Limite por horário</label>
+                <input class="minput" id="m-max-per-slot" type="number" min="1" max="10" value="1" placeholder="1"/>
+                <div class="mhint">Simultâneos por slot</div>
+              </div>
+            </div>
+            <div class="mgroup">
+              <label class="mlabel">Mensagem de confirmação (WhatsApp)</label>
+              <textarea class="minput" id="m-confirm-msg" rows="3" placeholder="Obrigado {nome}! Seu agendamento de {servico} está confirmado para {data} às {horario}."></textarea>
+              <div class="mhint">Variáveis: {nome}, {servico}, {data}, {horario}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personalização de Textos -->
+        <div class="mgroup">
+          <div class="adv-toggle" onclick="toggleAdv('textos')" id="adv-toggle-textos">
+            <span class="adv-toggle-icon">▶</span>
+            <span>Personalização de Textos</span>
+          </div>
+          <div class="adv-section" id="adv-textos">
+            <div class="mrow">
+              <div class="mgroup">
+                <label class="mlabel">Tag / subtítulo hero</label>
+                <input class="minput" id="m-hero-tag" type="text" placeholder="Ex: Salão Premium"/>
+              </div>
+              <div class="mgroup">
+                <label class="mlabel">Título seção "sobre"</label>
+                <input class="minput" id="m-sobre-titulo" type="text" placeholder="Nossa História"/>
+              </div>
+            </div>
+            <div class="mrow">
+              <div class="mgroup">
+                <label class="mlabel">Texto do botão principal</label>
+                <input class="minput" id="m-cta-text" type="text" placeholder="Agendar Agora"/>
+              </div>
+              <div class="mgroup">
+                <label class="mlabel">Rótulo da equipe (nav)</label>
+                <input class="minput" id="m-team-label" type="text" placeholder="Barbeiros / Equipe"/>
+              </div>
+            </div>
+            <div class="mgroup">
+              <label class="mlabel">Anos de experiência (badge)</label>
+              <input class="minput" id="m-anos-exp" type="number" min="0" max="100" value="10" placeholder="10"/>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /opções avançadas -->
+
+    </div><!-- /modal-body -->
+    <div class="modal-foot">
+      <button class="btn-modal-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-modal-save" id="modal-save-btn" onclick="saveClient()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────
+//  CONFIG
+// ─────────────────────────────────────────
+const API_VERSION = "3.1.0";
+
+// ══════════════════════════════════════════════════════════════
+//  CONFIG — lida do backend via /api/config (definida no .env)
+//  Para trocar o servidor: edite apenas o arquivo .env no servidor.
+//  BACKEND_BOOTSTRAP: URL de onde o config será buscado.
+//  Se o index.html estiver no mesmo domínio que o backend, deixe "".
+//  Se estiver em domínio separado, defina abaixo temporariamente
+//  ou sirva este arquivo via o próprio backend.
+// ══════════════════════════════════════════════════════════════
+// CONFIG — frontend e backend no mesmo domínio Vercel.
+// Deixado vazio: todas as chamadas usam caminhos relativos (/api/...).
+// ══════════════════════════════════════════════════════════════
+const BACKEND_BOOTSTRAP = "";
+
+let API = "";
+let _frontendUrlResolved = "";
+
+// Busca /api/config para resolver URLs dinâmicas definidas no .env da Vercel
+const _configReady = (async () => {
+  try {
+    const r = await fetch("/api/config", { signal: AbortSignal.timeout(4000) });
+    if (r.ok) {
+      const cfg = await r.json();
+      if (cfg.backend_url) API = cfg.backend_url.replace(/\/+$/, "");
+      _frontendUrlResolved = (cfg.frontend_url || "").replace(/\/+$/, "");
+    }
+  } catch { /* usa caminho relativo como fallback */ }
+  if (!_frontendUrlResolved) _frontendUrlResolved = location.origin;
+})();
+
+// ─────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────
+let token         = localStorage.getItem("adm_token") || "";
+let currentClient = null;
+let selectedSlot  = null;
+let editingId     = null;
+let currentPage   = "overview";
+let slugCheckTimer = null;
+let autoSlugEnabled = true;
+
+// ─────────────────────────────────────────
+//  UTILS
+// ─────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+const g = loading => {
+  const s = $("loading-screen");
+  if (!loading) { s.classList.add("out"); setTimeout(() => s.style.display = "none", 700); }
+  else { s.style.display = "flex"; requestAnimationFrame(() => s.classList.remove("out")); }
+};
+
+function toast(msg, type = "", duration = 3400) {
+  const d = document.createElement("div");
+  d.className = `toast ${type === "ok" ? "ok" : type === "err" ? "err" : ""}`;
+  d.textContent = msg;
+  $("toast-box").appendChild(d);
+  setTimeout(() => {
+    d.style.animation = "tout .3s ease forwards";
+    setTimeout(() => d.remove(), 300);
+  }, duration);
+}
+
+// ─────────────────────────────────────────
+//  SANITIZAÇÃO (frontend)
+// ─────────────────────────────────────────
+function esc(s) {
+  if (s === null || s === undefined) return "";
+  return String(s)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+}
+
+// ─────────────────────────────────────────
+//  FORMATADORES NUMÉRICOS
+// ─────────────────────────────────────────
+function fmtMoney(val) {
+  try {
+    return `R$ ${parseFloat(val).toFixed(2).replace(".", ",")}`;
+  } catch { return "R$ 0,00"; }
+}
+
+function fmtPhone(raw) {
+  const p = String(raw || "").replace(/\D/g, "");
+  const local = p.startsWith("55") && p.length > 11 ? p.slice(2) : p;
+  if (local.length === 11) return `(${local.slice(0,2)}) ${local.slice(2,7)}-${local.slice(7)}`;
+  if (local.length === 10) return `(${local.slice(0,2)}) ${local.slice(2,6)}-${local.slice(6)}`;
+  return p;
+}
+
+function cleanPhone(raw) {
+  return String(raw || "").replace(/\D/g, "");
+}
+
+function fmtDate(s) {
+  if (!s) return "";
+  const [y, m, d] = s.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function fmtDatetime(s) {
+  if (!s) return "";
+  try {
+    return new Date(s).toLocaleDateString("pt-BR");
+  } catch { return s.slice(0,10); }
+}
+
+function statusBadge(status) {
+  return {
+    confirmado: "badge-ok",
+    cancelado:  "badge-err",
+    concluido:  "badge-warn",
+    recusado:   "badge-err"
+  }[status] || "badge-warn";
+}
+
+// ─────────────────────────────────────────
+//  API HELPER
+// ─────────────────────────────────────────
+async function api(path, opts = {}) {
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  try {
+    const r = await fetch(API + path, { ...opts, headers: { ...headers, ...(opts.headers || {}) } });
+    return await r.json();
+  } catch {
+    return { success: false, message: "Erro de conexão" };
+  }
+}
+
+// ─────────────────────────────────────────
+//  SLUG HELPERS
+// ─────────────────────────────────────────
+function slugify(text) {
+  return text
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[\s-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 50);
+}
+
+function autoSlug() {
+  if (!autoSlugEnabled || editingId) return;
+  const nome = $("m-nome").value.trim();
+  if (!nome) return;
+  const s = slugify(nome);
+  if (s) { $("m-slug").value = s; updateSlugPreview(); }
+}
+
+function updateSlugPreview() {
+  const slug = $("m-slug").value.trim();
+  const preview = $("slug-preview");
+  if (!slug) { preview.style.display = "none"; return; }
+  const fullUrl = buildPublicLink(slug);
+  preview.style.display = "block";
+  preview.innerHTML = `<span class="slug-url">${esc(fullUrl)}</span>`;
+
+  clearTimeout(slugCheckTimer);
+  slugCheckTimer = setTimeout(async () => {
+    if (!slug || editingId) return;
+    const res = await api("/api/admin/slugify", {
+      method: "POST",
+      body: JSON.stringify({ text: slug })
+    });
+    if (res.success) {
+      const ok = res.data?.disponivel && res.data?.valido;
+      const badge = ok
+        ? '<span class="slug-badge ok">disponível</span>'
+        : '<span class="slug-badge err">indisponível</span>';
+      const currentUrl = buildPublicLink(slug);
+      preview.innerHTML = `<span class="slug-url">${esc(currentUrl)}</span>${badge}`;
+    }
+  }, 600);
+}
+
+function buildPublicLink(slug) {
+  const base = _frontendUrlResolved || location.origin;
+  return `${base}/?slug=${slug}`;
+}
+
+// ─────────────────────────────────────────
+//  ROUTER
+// ─────────────────────────────────────────
+const ANCHORS = new Set(["servicos","sobre","horarios","booking","galeria","hero","contato","booking-wrap","barbers-wrap"]);
+
+function route() {
+  const hash   = location.hash.replace("#", "");
+  const params = new URLSearchParams(location.search);
+  const path   = location.pathname;
+
+  const _adm = atob("bmdiYWRtaW4="); // "ngbadmin" — não alterar
+  if (hash === _adm || path.includes(_adm)) {
+    $("pub").style.display   = "none";
+    $("admin").style.display = "block";
+    initAdmin();
+    return;
+  }
+
+  let slug = params.get("slug");
+  if (!slug && hash && !ANCHORS.has(hash)) slug = hash;
+  if (!slug) {
+    const parts = path.split("/").filter(Boolean);
+    if (parts.length && ![_adm,"index.html"].includes(parts[0])) slug = parts[0];
+  }
+
+  if (slug) loadPublicSite(slug);
+  else {
+    g(false);
+    $("pub").style.display = "block";
+    showError("Nenhum estabelecimento especificado", "Use ?slug=nome-do-estabelecimento na URL");
+  }
+}
+
+// Navbar scroll effect
+window.addEventListener("scroll", () => {
+  const nav = document.querySelector(".nav");
+  if (nav) nav.classList.toggle("scrolled", window.scrollY > 60);
+}, { passive: true });
+
+window.addEventListener("hashchange", () => {
+  const h = location.hash.replace("#", "");
+  if (ANCHORS.has(h) || (h && document.getElementById(h))) return;
+  route();
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  $("footer-year").textContent = new Date().getFullYear();
+  const d = new Date(); $("bk-date").min = d.toISOString().split("T")[0];
+  // Aguarda config do backend antes de rotear (evita race condition de API/WS)
+  _configReady.then(() => route());
+});
+
+// ─────────────────────────────────────────
+//  PUBLIC SITE
+// ─────────────────────────────────────────
+function showError(title, sub) {
+  $("pub").innerHTML = `<div class="error-page">
+    <div class="error-code">404</div>
+    <div class="error-msg">${esc(title)}</div>
+    <div class="error-sub">${esc(sub)}</div>
+  </div>`;
+}
+
+async function loadPublicSite(slug) {
+  // Sanitiza slug antes de usar
+  const cleanSlug = slug.replace(/[^a-z0-9-]/gi, "").toLowerCase().slice(0, 60);
+  await _configReady; // garante que buildPublicLink e API estejam resolvidos
+  if (!cleanSlug) {
+    showError("Link inválido", "Verifique o link recebido.");
+    g(false); $("pub").style.display = "block"; return;
+  }
+  const res = await api(`/api/site/${cleanSlug}`);
+  if (!res.success) {
+    showError("Site não encontrado", "Verifique o link ou entre em contato.");
+    g(false); $("pub").style.display = "block"; return;
+  }
+  currentClient = res.data;
+  buildSite(currentClient);
+  g(false);
+  $("pub").style.display = "block";
+}
+
+function buildSite(c) {
+  // Aplica template via body class
+  document.body.className = "";
+  const tplId = (c.template || "classic").toLowerCase();
+  document.body.classList.add(`tpl-${tplId}`);
+
+  // Cores custom sobrepõem template (se definidas)
+  if (c.cor_secundaria && /^#[0-9a-fA-F]{3,6}$/.test(c.cor_secundaria)) {
+    document.documentElement.style.setProperty("--gold", c.cor_secundaria);
+    document.documentElement.style.setProperty("--gold-light", c.cor_secundaria);
+  }
+  if (c.cor_primaria && /^#[0-9a-fA-F]{3,6}$/.test(c.cor_primaria)) {
+    document.documentElement.style.setProperty("--bg", c.cor_primaria);
+  }
+
+  // Atualiza theme-color para mobile
+  const themeColorMeta = document.getElementById("theme-color");
+  if (themeColorMeta && c.cor_primaria) themeColorMeta.content = c.cor_primaria;
+
+  // Detecta segmento e textos ANTES de qualquer uso
+  const bizType = c.business_type || "barbearia";
+  const segText = SEGMENT_TEXTS[bizType] || SEGMENT_TEXTS.outro;
+  const segIcon = BUSINESS_ICONS[bizType] || "🏢";
+
+  // Nome e marca
+  const nomeSite = esc(c.nome || "");
+  const navBrand = $("nav-brand");
+  if (navBrand) {
+    if (c.logo) {
+      navBrand.innerHTML = `<img src="${esc(c.logo)}" alt="${nomeSite}" onerror="this.style.display='none'"/>${nomeSite}`;
+    } else {
+      navBrand.textContent = c.nome || "";
+    }
+  }
+  const fl = $("footer-logo"); if (fl) fl.textContent = c.nome || "";
+  const ftag = $("footer-tagline"); if(ftag) ftag.textContent = c.hero_tag || segText.hero;
+  const heroCta = $("hero-cta"); if(heroCta) heroCta.textContent = c.cta_text || segText.cta;
+  if (c.endereco) {
+    const fa = $("footer-addr"); if(fa) fa.style.display = "flex";
+    const fat = $("footer-addr-txt"); if(fat) fat.textContent = c.endereco;
+  }
+  if (c.instagram) {
+    const fiw = $("footer-instagram-wrap"); if(fiw) fiw.style.display = "block";
+    const fi = $("footer-instagram"); if(fi) fi.href = `https://instagram.com/${c.instagram}`;
+    const fih = $("footer-instagram-handle"); if(fih) fih.textContent = `@${c.instagram}`;
+  }
+  if (c.telefone_whatsapp) {
+    const fw = $("footer-wpp");
+    if(fw) {
+      const phone = c.telefone_whatsapp.startsWith("55") ? c.telefone_whatsapp : "55"+c.telefone_whatsapp;
+      fw.href = `https://wa.me/${phone}`;
+      fw.textContent = `📅 ${c.cta_text || segText.cta}`;
+    }
+  }
+  const ht = $("hero-tag");    if (ht) ht.textContent = c.hero_tag || segText.hero;
+  const bt = $("booking-title"); if(bt) bt.innerHTML = `${segText.bookTitle} <em>Agora</em>`;
+  const navBtn = document.querySelector(".nav-btn"); if(navBtn) navBtn.textContent = c.cta_text || segText.cta;
+
+  // Hero title: quebra após primeira palavra para elegância tipográfica
+  const words = (c.nome || segText.hero).toUpperCase().split(" ");
+  const titleHtml = words.length > 1
+    ? `${esc(words[0])}<br><em>${esc(words.slice(1).join(" "))}</em>`
+    : `${esc(words[0])}<br><em>Premium</em>`;
+  const htt = $("hero-title"); if (htt) htt.innerHTML = titleHtml;
+
+  const hd = $("hero-desc"); if (hd) hd.textContent = c.descricao || "Excelência em cada detalhe.";
+
+  // Banner (hero bg)
+  const h = $("hero");
+  if (h && c.banner) {
+    h.style.backgroundImage = `url('${esc(c.banner)}')`;
+  }
+
+  // SEO dinâmico
+  const pageTitle = c.meta_title || `${c.nome} — Agende Online`;
+  const pageDesc  = c.meta_desc  || c.descricao || `Agende serviços com ${c.nome} de forma rápida e fácil.`;
+  document.title = pageTitle;
+  const pdEl = document.getElementById("page-title"); if(pdEl) pdEl.textContent = pageTitle;
+  const descEl = document.getElementById("page-desc"); if(descEl) descEl.setAttribute("content", pageDesc);
+  const ogTitle = document.getElementById("og-title"); if(ogTitle) ogTitle.setAttribute("content", pageTitle);
+  const ogDesc  = document.getElementById("og-desc");  if(ogDesc)  ogDesc.setAttribute("content", pageDesc);
+  if (c.logo) { const ogImg = document.getElementById("og-image"); if(ogImg) ogImg.setAttribute("content", c.logo); }
+
+  // Galeria
+  const galW  = $("gallery-wrap");
+  const galD  = $("gallery-divider");
+  const galG  = $("gallery-grid");
+  const galeria = (c.galeria || []).filter(Boolean);
+  if (galeria.length >= 2) {
+    galG.innerHTML = "";
+    galeria.forEach(url => {
+      const item = document.createElement("div");
+      item.className = "gallery-item";
+      item.innerHTML = `<img class="gallery-img" src="${esc(url)}" alt="Galeria" loading="lazy" onerror="this.parentElement.style.display='none'"/>`;
+      galG.appendChild(item);
+    });
+    galW.style.display = "block";
+    if (galD) galD.style.display = "";
+  } else {
+    galW.style.display = "none";
+    if (galD) galD.style.display = "none";
+  }
+
+  // Serviços
+  const sg = $("services-grid");
+  sg.innerHTML = "";
+  (c.servicos || []).forEach((s, i) => {
+    const el = document.createElement("div");
+    el.className = "svc-card";
+    el.innerHTML = `
+      <div class="svc-id">0${i + 1}</div>
+      <div class="svc-name">${esc(s.nome)}</div>
+      <div class="svc-desc">${esc(s.descricao || "")}</div>
+      <div class="svc-footer">
+        <div class="svc-price">${fmtMoney(s.preco)}</div>
+        <div class="svc-dur">${esc(String(s.duracao))}min</div>
+      </div>
+      <button class="svc-btn" onclick="selectService('${esc(s.id)}')">Agendar este serviço →</button>`;
+    sg.appendChild(el);
+  });
+
+  // Barbeiros / Equipe
+  const barbeiros = (c.barbeiros || []).filter(b => b.status !== "inativo");
+  const barbW  = $("barbers-wrap");
+  const barbD  = $("barbers-divider");
+  const barbG  = $("barbers-grid");
+  const navBarb = $("nav-barbers-link");
+
+  // Atualiza títulos da seção de equipe com label do segmento
+  const barbSecLabel = barbW?.querySelector(".sec-label");
+  const barbSecTitle = barbW?.querySelector(".sec-title");
+  if (barbSecLabel) barbSecLabel.textContent = segText.team;
+  if (barbSecTitle) barbSecTitle.innerHTML = `Nossa <em>${segText.team}</em>`;
+  if (navBarb) navBarb.textContent = segText.team;
+
+  if (barbeiros.length > 0) {
+    barbG.innerHTML = "";
+    barbeiros.forEach(b => {
+      const el = document.createElement("div");
+      el.className = "barber-card";
+      const avatarHtml = b.foto
+        ? `<div class="barber-avatar"><img src="${esc(b.foto)}" alt="${esc(b.nome)}" onerror="this.parentElement.textContent='${segIcon}'"/></div>`
+        : `<div class="barber-avatar">${segIcon}</div>`;
+      el.innerHTML = `${avatarHtml}
+        <div class="barber-name">${esc(b.nome)}</div>
+        ${b.bio ? `<div class="barber-bio">${esc(b.bio)}</div>` : ""}`;
+      barbG.appendChild(el);
+    });
+    barbW.style.display = "block";
+    if (barbD) barbD.style.display = "";
+    if (navBarb) navBarb.style.display = "";
+
+    // Popula select de profissional no form
+    const barbSel = $("bk-barber");
+    barbSel.innerHTML = `<option value="">Qualquer profissional</option>`;
+    barbeiros.forEach(b => {
+      barbSel.innerHTML += `<option value="${esc(b.id)}">${esc(b.nome)}</option>`;
+    });
+    const barbLabel = $("bk-barber-label");
+    if (barbLabel) barbLabel.textContent = `${segText.team} (opcional)`;
+    $("bk-barber-wrap").style.display = "";
+  } else {
+    barbW.style.display = "none";
+    if (barbD) barbD.style.display = "none";
+    if (navBarb) navBarb.style.display = "none";
+    $("bk-barber-wrap").style.display = "none";
+  }
+
+  // Logo na área "sobre" — icon dinâmico por segmento
+  const aboutVisual = $("about-visual");
+  const aboutIcon = $("about-icon") || aboutVisual?.querySelector(".about-icon");
+  if (aboutIcon) aboutIcon.textContent = segIcon;
+  if (aboutVisual && c.logo) {
+    const img = document.createElement("img");
+    img.src = c.logo;
+    img.className = "about-img";
+    img.alt = c.nome || "Logo";
+    img.onerror = () => img.remove();
+    if (aboutIcon) aboutIcon.style.display = "none";
+    aboutVisual.insertBefore(img, aboutVisual.firstChild);
+  }
+
+  // Sobre: título e badge de anos
+  const sobreTitle = document.querySelector("#sobre .sec-title");
+  if (sobreTitle) sobreTitle.innerHTML = `${esc(segText.about || "Sobre")} <em>Nós</em>`;
+  const anosEl = document.querySelector(".about-badge-n");
+  if (anosEl && c.anos_exp) anosEl.textContent = `${c.anos_exp}+`;
+
+  const ad = $("about-desc"); if (ad) ad.textContent = c.descricao || "Excelência e qualidade em cada atendimento.";
+  if (c.endereco) {
+    const aa = $("about-addr"); if (aa) aa.style.display = "flex";
+    const at = $("addr-txt"); if (at) at.textContent = c.endereco;
+  }
+
+  buildSchedule(c.horario_funcionamento);
+
+  // Select de serviço no booking
+  const sel = $("bk-service");
+  sel.innerHTML = `<option value="">Selecione um serviço...</option>`;
+  (c.servicos || []).forEach(s => {
+    sel.innerHTML += `<option value="${esc(s.id)}">${esc(s.nome)} — ${fmtMoney(s.preco)} (${s.duracao}min)</option>`;
+  });
+}
+
+function buildSchedule(hf) {
+  const dias   = ["segunda","terca","quarta","quinta","sexta","sabado","domingo"];
+  const labels = ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
+  const full   = ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"];
+  const todayIdx = (new Date().getDay() + 6) % 7;
+  const grid = $("schedule-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  dias.forEach((d, i) => {
+    const info = (hf && typeof hf === "object") ? (hf[d] || {}) : {};
+    const el = document.createElement("div");
+    el.className = `sch-day${!info.aberto ? " closed" : ""}${todayIdx === i ? " today" : ""}`;
+    el.setAttribute("title", full[i]);
+    let hoursHtml = info.aberto
+      ? `${esc(info.inicio || "")}<br>${esc(info.fim || "")}`
+      : "Fechado";
+    let intervalHtml = "";
+    if (info.aberto && info.intervalo_inicio && info.intervalo_fim) {
+      intervalHtml = `<div class="sch-day-interval">Intervalo: ${esc(info.intervalo_inicio)}–${esc(info.intervalo_fim)}</div>`;
+    }
+    el.innerHTML = `<div class="sch-day-name">${labels[i]}</div>
+      <div class="sch-day-hours">${hoursHtml}</div>
+      ${intervalHtml}`;
+    grid.appendChild(el);
+  });
+}
+
+function selectService(id) {
+  $("bk-service").value = id;
+  $("booking").scrollIntoView({ behavior: "smooth" });
+  fetchSlots();
+}
+
+// ─────────────────────────────────────────
+//  SLOTS
+// ─────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  $("bk-service")?.addEventListener("change", fetchSlots);
+  $("bk-date")?.addEventListener("change", fetchSlots);
+  $("bk-submit")?.addEventListener("click", submitBooking);
+});
+
+async function fetchSlots() {
+  const date = $("bk-date").value;
+  const sid  = $("bk-service").value;
+  if (!date || !sid || !currentClient) return;
+  const res = await api(`/api/slots/${currentClient.slug}?date=${date}&service_id=${encodeURIComponent(sid)}`);
+  if (res.success) renderSlots(res.data);
+}
+
+function renderSlots(data) {
+  selectedSlot = null;
+  const box = $("bk-slots");
+  box.innerHTML = "";
+  if (!data.aberto) {
+    box.innerHTML = `<span class="slot-empty">Fechado neste dia.</span>`;
+    return;
+  }
+  const booked = new Set(data.booked || []);
+  const all = [...new Set([...(data.slots || []), ...(data.booked || [])])].sort();
+  if (!all.length) {
+    box.innerHTML = `<span class="slot-empty">Sem horários disponíveis.</span>`;
+    return;
+  }
+  all.forEach(s => {
+    const btn = document.createElement("button");
+    const isBooked = booked.has(s);
+    btn.className = `slot-btn${isBooked ? " booked" : ""}`;
+    btn.textContent = s;
+    btn.title = isBooked ? "Horário indisponível" : `Disponível às ${s}`;
+    btn.disabled = isBooked;
+    btn.setAttribute("aria-label", isBooked ? `${s} indisponível` : `Selecionar ${s}`);
+    btn.onclick = () => {
+      document.querySelectorAll(".slot-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      selectedSlot = s;
+      // Update booking steps
+      const stepDate = $("step-date"); if(stepDate) stepDate.classList.add("done");
+      const stepContact = $("step-contact"); if(stepContact) stepContact.classList.add("active");
+    };
+    box.appendChild(btn);
+  });
+}
+
+
+async function submitBooking() {
+  const nome     = $("bk-name").value.trim();
+  const telefone = cleanPhone($("bk-phone").value);
+  const servico  = $("bk-service").value;
+  const data     = $("bk-date").value;
+  const barbeiro = $("bk-barber")?.value || "";
+
+  const msgEl = $("bk-msg");
+  const showMsg = (msg, type) => {
+    if (!msgEl) return;
+    msgEl.textContent = msg; msgEl.className = `form-msg ${type} show`;
+    setTimeout(() => msgEl.classList.remove("show"), 4000);
+  };
+  if (!nome || nome.length < 2) { showMsg("⚠ Informe seu nome completo", "err"); return; }
+  if (!telefone || telefone.length < 8) { showMsg("⚠ Informe um WhatsApp válido com DDD", "err"); return; }
+  if (!servico)      { showMsg("⚠ Selecione um serviço para continuar", "err"); return; }
+  if (!data)         { showMsg("⚠ Selecione uma data para o atendimento", "err"); return; }
+  if (!selectedSlot) { showMsg("⚠ Selecione um horário disponível", "err"); return; }
+
+  const btn = $("bk-submit");
+  btn.disabled = true;
+  const txtEl = $("bk-submit-txt"); if(txtEl) txtEl.textContent = "Confirmando...";
+  const iconEl = $("bk-submit-icon"); if(iconEl) iconEl.textContent = "⏳";
+
+  const body = {
+    slug:             currentClient.slug,
+    cliente_nome:     nome,
+    cliente_telefone: telefone,
+    servico_id:       servico,
+    data,
+    horario:          selectedSlot
+  };
+  if (barbeiro) body.barbeiro_id = barbeiro;
+
+  const res = await api("/api/appointments", { method: "POST", body: JSON.stringify(body) });
+
+  btn.disabled = false;
+  const tEl = $("bk-submit-txt"); if(tEl) tEl.textContent = "Confirmar Agendamento";
+  const iEl = $("bk-submit-icon"); if(iEl) iEl.textContent = "✓";
+
+  if (res.success) {
+    const msgEl2 = $("bk-msg");
+    if(msgEl2){ msgEl2.textContent = "✓ Agendamento confirmado! Você receberá a confirmação em breve."; msgEl2.className = "form-msg ok show"; }
+    toast("✓ Agendamento confirmado!", "ok");
+    $("bk-name").value = ""; $("bk-phone").value = "";
+    $("bk-service").value = ""; $("bk-date").value = "";
+    if ($("bk-barber")) $("bk-barber").value = "";
+    selectedSlot = null;
+    $("bk-slots").innerHTML = `<span class="slot-empty">Selecione uma data e serviço</span>`;
+    if (res.data?.whatsapp_url) setTimeout(() => window.open(res.data.whatsapp_url, "_blank"), 800);
+  } else {
+    toast(res.message || "Erro ao agendar", "err");
+  }
+}
+
+// ─────────────────────────────────────────
+//  ADMIN — AUTH
+// ─────────────────────────────────────────
+async function initAdmin() {
+  await _configReady; // garante que API e buildPublicLink estejam resolvidos
+  if (token) {
+    const res = await api("/api/admin/clients");
+    if (res.success) {
+      showDash();
+    } else {
+      token = "";
+      localStorage.removeItem("adm_token");
+      $("adm-login").style.display = "flex";
+      $("adm-dash").style.display = "none";
+      g(false);
+    }
+  } else {
+    $("adm-login").style.display = "flex";
+    $("adm-dash").style.display = "none";
+    g(false);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  $("adm-login-btn")?.addEventListener("click", adminLogin);
+  $("adm-pass")?.addEventListener("keydown", e => { if (e.key === "Enter") adminLogin(); });
+  $("adm-logout-btn")?.addEventListener("click", adminLogout);
+  document.querySelectorAll(".sn-item").forEach(el => {
+    el.addEventListener("click", () => {
+      document.querySelectorAll(".sn-item").forEach(x => x.classList.remove("active"));
+      el.classList.add("active");
+      renderPage(el.dataset.page);
+    });
+  });
+  $("client-modal")?.addEventListener("click", e => {
+    if (e.target === $("client-modal")) closeModal();
+  });
+  $("m-slug")?.addEventListener("focus", () => { autoSlugEnabled = false; });
+  // Fecha modal com Escape
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeModal();
+  });
+});
+
+async function adminLogin() {
+  const u = $("adm-user").value.trim();
+  const p = $("adm-pass").value;
+  if (!u || !p) { toast("Preencha usuário e senha", "err"); return; }
+  const btn = $("adm-login-btn");
+  btn.disabled = true; btn.textContent = "Entrando...";
+  const res = await api("/api/admin/login", { method: "POST", body: JSON.stringify({ username: u, password: p }) });
+  btn.disabled = false; btn.textContent = "Entrar";
+  if (res.success) {
+    token = res.data.token;
+    localStorage.setItem("adm_token", token);
+    showDash();
+  } else {
+    toast(res.message || "Credenciais inválidas", "err");
+  }
+}
+
+function adminLogout() {
+  token = ""; localStorage.removeItem("adm_token");
+  $("adm-dash").style.display = "none";
+  $("adm-login").style.display = "flex";
+  $("adm-user").value = ""; $("adm-pass").value = "";
+  $("ws-label").textContent = "Offline";
+}
+
+function showDash() {
+  g(false);
+  $("adm-login").style.display = "none";
+  $("adm-dash").style.display  = "block";
+  $("ws-label").textContent = "Online";
+  renderPage("overview");
+}
+
+// ─────────────────────────────────────────
+//  ADMIN PAGES
+// ─────────────────────────────────────────
+async function renderPage(page) {
+  currentPage = page;
+  const titles = {
+    overview:     "Visão Geral",
+    clients:      "Estabelecimentos",
+    appointments: "Agendamentos",
+    links:        "Links & Divulgação"
+  };
+  $("adm-title").textContent = titles[page] || page;
+  $("adm-header-action").innerHTML = "";
+  if (page === "overview")     await renderOverview();
+  if (page === "clients")      await renderClients();
+  if (page === "appointments") await renderAppointments();
+  if (page === "links")        await renderLinks();
+}
+
+// VISÃO GERAL
+async function renderOverview() {
+  const [cliR, apptR] = await Promise.all([
+    api("/api/admin/clients"),
+    api("/api/admin/appointments")
+  ]);
+  const clients = cliR.data || [];
+  const appts   = apptR.data || [];
+  const today   = new Date().toISOString().split("T")[0];
+  const todayA  = appts.filter(a => a.data === today);
+  const confirmed = appts.filter(a => a.status === "confirmado");
+  const revenue = confirmed.reduce((s, a) => s + Number(a.servico_preco || 0), 0);
+  const activeClients = clients.filter(c => c.status === "ativo");
+
+  $("adm-page").innerHTML = `
+    <div class="onboarding-banner">
+      <div class="onboarding-text">
+        <h3>Fluxo de Onboarding Rápido</h3>
+        <p>Cadastre um novo estabelecimento (barbearia, salão, dentista...), gere o link e entregue para o cliente divulgar.</p>
+        <div class="onboarding-steps">
+          <div class="step-pill"><span>1</span> Instagram → WhatsApp</div>
+          <div class="step-pill"><span>2</span> Cadastrar estabelecimento</div>
+          <div class="step-pill"><span>3</span> Copiar link da agenda</div>
+          <div class="step-pill"><span>4</span> Entregar ao cliente</div>
+        </div>
+      </div>
+      <button class="btn-add" onclick="navTo('clients')">＋ Novo Cadastro</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Cadastros Ativos</div>
+        <div class="stat-val stat-gold">${activeClients.length}</div>
+        <div class="stat-hint">de ${clients.length} cadastrados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Agendamentos Hoje</div>
+        <div class="stat-val stat-gold">${todayA.length}</div>
+        <div class="stat-hint">${fmtDate(today)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Agendamentos</div>
+        <div class="stat-val">${appts.length}</div>
+        <div class="stat-hint">desde o início</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Receita Estimada</div>
+        <div class="stat-val stat-gold">${fmtMoney(revenue)}</div>
+        <div class="stat-hint">${confirmed.length} confirmados</div>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <div class="tbl-head">
+        <div class="tbl-head-title">Últimos Agendamentos</div>
+      </div>
+      <table>
+        <thead><tr><th>Cliente</th><th>Serviço</th><th>Data</th><th>Horário</th><th>Estabelecimento</th><th>Status</th></tr></thead>
+        <tbody id="ov-tbody"></tbody>
+      </table>
+    </div>`;
+
+  const tbody = $("ov-tbody");
+  const last = appts.slice(0, 15);
+  if (!last.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-dim);font-family:'DM Mono',monospace;font-size:.78rem">Nenhum agendamento ainda.</td></tr>`;
+    return;
+  }
+  last.forEach(a => {
+    tbody.innerHTML += `<tr>
+      <td class="td-bold">${esc(a.cliente_nome)}</td>
+      <td>${esc(a.servico_nome)}</td>
+      <td class="td-dim">${fmtDate(a.data)}</td>
+      <td class="td-gold">${esc(a.horario)}</td>
+      <td class="td-dim">${esc(a.slug)}</td>
+      <td><span class="badge ${statusBadge(a.status)}">${esc(a.status)}</span></td>
+    </tr>`;
+  });
+}
+
+// BARBEARIAS
+async function renderClients() {
+  const res = await api("/api/admin/clients");
+  const clients = res.data || [];
+
+  $("adm-header-action").innerHTML = `<button class="btn-add" onclick="openModal()">＋ Novo Cadastro</button>`;
+
+  if (!clients.length) {
+    $("adm-page").innerHTML = `
+      <div class="onboarding-banner">
+        <div class="onboarding-text">
+          <h3>Nenhum cadastro ainda</h3>
+          <p>Clique em "Novo Cadastro" para começar. Barbearia, salão, clínica... Em menos de 2 minutos o link da agenda estará pronto.</p>
+        </div>
+        <button class="btn-add" onclick="openModal()">＋ Cadastrar Agora</button>
+      </div>`;
+    return;
+  }
+
+  $("adm-page").innerHTML = `
+    <div class="filter-row">
+      <input class="tbl-search" id="cli-search" placeholder="Buscar estabelecimento..." oninput="filterClients()"/>
+      <span class="filter-label">${clients.length} cadastro${clients.length !== 1 ? "s" : ""}</span>
+    </div>
+    <div class="clients-grid" id="clients-grid"></div>`;
+
+  renderClientCards(clients);
+}
+
+function renderClientCards(clients) {
+  const grid = $("clients-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  clients.forEach(c => {
+    const link = c.link_publico || buildPublicLink(c.slug);
+    const barbCount = (c.barbeiros || []).length;
+    grid.innerHTML += `
+      <div class="client-card" id="card-${esc(c.id)}">
+        <div class="client-card-header">
+          <div>
+            <div class="client-card-name">${esc(c.nome)}</div>
+            <div class="client-card-slug">/${esc(c.slug)}</div>
+          </div>
+          <span class="badge ${c.status === "ativo" ? "badge-ok" : "badge-warn"}">${esc(c.status)}</span>
+        </div>
+        <div class="client-card-body">
+          <div class="client-meta">
+            <div class="client-meta-label">Segmento</div>
+            <div class="client-meta-val"><span class="business-type-badge">${BUSINESS_ICONS[c.business_type]||"🏢"} ${esc(BUSINESS_LABELS_PT[c.business_type]||c.business_type||"barbearia")}</span></div>
+          </div>
+          <div class="client-meta">
+            <div class="client-meta-label">Template</div>
+            <div class="client-meta-val">${esc(c.template || "classic")}</div>
+          </div>
+          <div class="client-meta">
+            <div class="client-meta-label">Serviços</div>
+            <div class="client-meta-val">${(c.servicos || []).length} cadastrados</div>
+          </div>
+          <div class="client-meta">
+            <div class="client-meta-label">Equipe</div>
+            <div class="client-meta-val">${barbCount > 0 ? barbCount + " cadastrado" + (barbCount > 1 ? "s" : "") : "—"}</div>
+          </div>
+        </div>
+        <div class="client-card-link" onclick="copyLink('${esc(c.slug)}')">
+          <div class="client-card-link-url">${esc(link)}</div>
+          <div class="client-card-link-btn">📋 Copiar</div>
+        </div>
+        <div class="client-card-actions">
+          <button class="btn-sm gold" onclick="editClient('${esc(c.id)}')">✏️ Editar</button>
+          <button class="btn-sm wpp" onclick="openWppOnboarding('${esc(c.slug)}','${esc(c.nome)}')">💬 WhatsApp</button>
+          <button class="btn-sm" onclick="previewLink('${esc(c.slug)}')">👁 Preview</button>
+          <button class="btn-sm danger" onclick="deleteClient('${esc(c.id)}','${esc(c.nome)}')">🗑 Excluir</button>
+        </div>
+      </div>`;
+  });
+}
+
+function filterClients() {
+  const q = $("cli-search")?.value.toLowerCase() || "";
+  document.querySelectorAll(".client-card").forEach(card => {
+    card.style.display = card.textContent.toLowerCase().includes(q) ? "" : "none";
+  });
+}
+
+// AGENDAMENTOS
+async function renderAppointments() {
+  const [res, cliR] = await Promise.all([
+    api("/api/admin/appointments"),
+    api("/api/admin/clients")
+  ]);
+  const allAppts = res.data || [];
+  const slugs    = [...new Set(allAppts.map(a => a.slug))];
+
+  $("adm-page").innerHTML = `
+    <div class="filter-row">
+      <span class="filter-label">Filtrar:</span>
+      <select class="filter-select" id="appt-filter-status" onchange="applyApptFilters()">
+        <option value="">Todos os status</option>
+        <option value="confirmado">Confirmado</option>
+        <option value="cancelado">Cancelado</option>
+        <option value="concluido">Concluído</option>
+        <option value="recusado">Recusado</option>
+      </select>
+      <select class="filter-select" id="appt-filter-slug" onchange="applyApptFilters()">
+        <option value="">Todos os estabelecimentos</option>
+        ${slugs.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join("")}
+      </select>
+      <input class="tbl-search" id="appt-search" placeholder="Buscar cliente..." oninput="applyApptFilters()" style="width:170px"/>
+    </div>
+    <div class="tbl-wrap">
+      <div class="tbl-head">
+        <div class="tbl-head-title">Agendamentos</div>
+        <span class="filter-label" id="appt-count">${allAppts.length} total</span>
+      </div>
+      <table>
+        <thead><tr><th>Cliente</th><th>Telefone</th><th>Serviço</th><th>Valor</th><th>Data</th><th>Horário</th><th>Estabelecimento</th><th>Status</th></tr></thead>
+        <tbody id="appt-tbody"></tbody>
+      </table>
+    </div>`;
+
+  window._allAppts = allAppts;
+  applyApptFilters();
+}
+
+function applyApptFilters() {
+  const appts  = window._allAppts || [];
+  const status = $("appt-filter-status")?.value || "";
+  const slug   = $("appt-filter-slug")?.value || "";
+  const q      = ($("appt-search")?.value || "").toLowerCase();
+
+  const filtered = appts.filter(a =>
+    (!status || a.status === status) &&
+    (!slug   || a.slug === slug) &&
+    (!q      || (a.cliente_nome || "").toLowerCase().includes(q) || (a.cliente_telefone || "").includes(q))
+  );
+
+  const tbody  = $("appt-tbody");
+  const countEl = $("appt-count");
+  if (countEl) countEl.textContent = `${filtered.length} de ${appts.length}`;
+  if (!tbody) return;
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-dim);font-family:'DM Mono',monospace;font-size:.78rem">Nenhum agendamento encontrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = "";
+  filtered.forEach(a => {
+    tbody.innerHTML += `<tr>
+      <td class="td-bold">${esc(a.cliente_nome)}</td>
+      <td class="td-dim">${esc(fmtPhone(a.cliente_telefone))}</td>
+      <td>${esc(a.servico_nome)}${a.barbeiro_nome ? `<div style="font-size:.65rem;color:var(--text-dim);font-family:'DM Mono',monospace;margin-top:2px">✂ ${esc(a.barbeiro_nome)}</div>` : ""}</td>
+      <td class="td-gold">${fmtMoney(a.servico_preco)}</td>
+      <td class="td-dim">${fmtDate(a.data)}</td>
+      <td class="td-gold">${esc(a.horario)}</td>
+      <td class="td-dim">${esc(a.slug)}</td>
+      <td><span class="badge ${statusBadge(a.status)}">${esc(a.status)}</span></td>
+    </tr>`;
+  });
+}
+
+// LINKS & DIVULGAÇÃO
+async function renderLinks() {
+  const res = await api("/api/admin/clients");
+  const clients = (res.data || []).filter(c => c.status === "ativo");
+
+  $("adm-page").innerHTML = `
+    <div class="onboarding-banner" style="margin-bottom:28px">
+      <div class="onboarding-text">
+        <h3>Central de Links</h3>
+        <p>Copie o link da agenda de cada estabelecimento e envie pelo WhatsApp ou cole no Instagram.
+        O cliente acessa, agenda e você recebe o pedido em tempo real.</p>
+      </div>
+    </div>
+    <div id="links-list"></div>`;
+
+  const list = $("links-list");
+  if (!clients.length) {
+    list.innerHTML = `<p style="font-family:'DM Mono',monospace;font-size:.78rem;color:var(--text-dim)">Nenhum estabelecimento ativo. Cadastre um primeiro.</p>`;
+    return;
+  }
+  clients.forEach(c => {
+    const link = c.link_publico || buildPublicLink(c.slug);
+    list.innerHTML += `
+      <div class="link-box">
+        <div class="link-box-title">📍 ${esc(c.nome)}</div>
+        <div class="link-box-url">${esc(link)}</div>
+        <div class="link-box-actions">
+          <button class="btn-sm gold" onclick="copyLink('${esc(c.slug)}')">📋 Copiar Link</button>
+          <button class="btn-sm wpp" onclick="openWppOnboarding('${esc(c.slug)}','${esc(c.nome)}')">💬 Enviar pelo WhatsApp</button>
+          <button class="btn-sm" onclick="previewLink('${esc(c.slug)}')">👁 Abrir Preview</button>
+        </div>
+      </div>`;
+  });
+}
+
+// ─────────────────────────────────────────
+//  SCHEDULE EDITOR (Painel)
+// ─────────────────────────────────────────
+const DIAS_INFO = [
+  {key:"segunda", label:"Segunda"},
+  {key:"terca",   label:"Terça"},
+  {key:"quarta",  label:"Quarta"},
+  {key:"quinta",  label:"Quinta"},
+  {key:"sexta",   label:"Sexta"},
+  {key:"sabado",  label:"Sábado"},
+  {key:"domingo", label:"Domingo"},
+];
+
+function buildScheduleEditor(hf) {
+  const editor = $("schedule-editor");
+  editor.innerHTML = "";
+  DIAS_INFO.forEach(({key, label}) => {
+    const info = hf?.[key] || {aberto: false, inicio: "", fim: "", intervalo_inicio: "", intervalo_fim: ""};
+    const aberto = !!info.aberto;
+    const row = document.createElement("div");
+    row.className = `sch-row${aberto ? " open" : ""}`;
+    row.id = `sch-row-${key}`;
+    row.innerHTML = `
+      <div class="sch-row-day">
+        <label class="sch-toggle" title="Abrir/fechar ${label}">
+          <input type="checkbox" id="sch-${key}-aberto" ${aberto ? "checked" : ""}
+            onchange="toggleSchDay('${key}', this.checked)"/>
+          <span class="sch-toggle-track"></span>
+          <span class="sch-toggle-thumb"></span>
+        </label>
+        <strong>${label}</strong>
+      </div>
+      <div class="sch-row-times" id="sch-${key}-times" style="${aberto ? "" : "opacity:.3;pointer-events:none"}">
+        <div class="sch-time-group">
+          <span class="sch-time-label">Abre</span>
+          <input class="sch-time-input" type="time" id="sch-${key}-inicio"
+            value="${esc(info.inicio || "")}" ${aberto ? "" : "disabled"}
+            onchange="validateSchRow('${key}')"/>
+        </div>
+        <div class="sch-time-group">
+          <span class="sch-time-label">Fecha</span>
+          <input class="sch-time-input" type="time" id="sch-${key}-fim"
+            value="${esc(info.fim || "")}" ${aberto ? "" : "disabled"}
+            onchange="validateSchRow('${key}')"/>
+        </div>
+        <span class="sch-interval-sep">| intervalo:</span>
+        <div class="sch-time-group">
+          <span class="sch-time-label">De</span>
+          <input class="sch-time-input" type="time" id="sch-${key}-iv-ini"
+            value="${esc(info.intervalo_inicio || "")}" ${aberto ? "" : "disabled"}
+            onchange="validateSchRow('${key}')"/>
+        </div>
+        <div class="sch-time-group">
+          <span class="sch-time-label">Até</span>
+          <input class="sch-time-input" type="time" id="sch-${key}-iv-fim"
+            value="${esc(info.intervalo_fim || "")}" ${aberto ? "" : "disabled"}
+            onchange="validateSchRow('${key}')"/>
+        </div>
+      </div>
+      <div class="sch-err" id="sch-${key}-err"></div>`;
+    editor.appendChild(row);
+  });
+}
+
+function toggleSchDay(key, open) {
+  const row   = $(`sch-row-${key}`);
+  const times = $(`sch-${key}-times`);
+  const inputs = times.querySelectorAll("input");
+  row.classList.toggle("open", open);
+  times.style.opacity        = open ? "1" : ".3";
+  times.style.pointerEvents  = open ? "" : "none";
+  inputs.forEach(inp => inp.disabled = !open);
+  if (!open) {
+    $(`sch-${key}-inicio`).value  = "";
+    $(`sch-${key}-fim`).value     = "";
+    $(`sch-${key}-iv-ini`).value  = "";
+    $(`sch-${key}-iv-fim`).value  = "";
+    const err = $(`sch-${key}-err`);
+    if (err) { err.textContent = ""; err.style.display = "none"; }
+  }
+}
+
+function validateSchRow(key) {
+  const errEl = $(`sch-${key}-err`);
+  const aberto = $(`sch-${key}-aberto`)?.checked;
+  if (!aberto) { if (errEl) { errEl.style.display = "none"; } return true; }
+
+  const inicio = $(`sch-${key}-inicio`)?.value;
+  const fim    = $(`sch-${key}-fim`)?.value;
+  const ivIni  = $(`sch-${key}-iv-ini`)?.value;
+  const ivFim  = $(`sch-${key}-iv-fim`)?.value;
+
+  const showErr = msg => {
+    if (errEl) { errEl.textContent = msg; errEl.style.display = "block"; }
+    return false;
+  };
+  const hideErr = () => { if (errEl) { errEl.style.display = "none"; } return true; };
+
+  if (!inicio || !fim) return showErr("Informe o horário de abertura e fechamento.");
+  if (fim <= inicio) return showErr("O horário de fechamento deve ser após o de abertura.");
+  if ((ivIni && !ivFim) || (!ivIni && ivFim)) return showErr("O intervalo precisa de início e fim.");
+  if (ivIni && ivFim) {
+    if (ivFim <= ivIni) return showErr("O fim do intervalo deve ser após o início.");
+    if (ivIni < inicio || ivFim > fim) return showErr("O intervalo deve estar dentro do horário de funcionamento.");
+  }
+  return hideErr();
+}
+
+function getScheduleFromEditor() {
+  const hf = {};
+  let valid = true;
+  DIAS_INFO.forEach(({key}) => {
+    const aberto = $(`sch-${key}-aberto`)?.checked || false;
+    if (!validateSchRow(key)) valid = false;
+    hf[key] = {
+      aberto,
+      inicio:           aberto ? ($(`sch-${key}-inicio`)?.value || "") : "",
+      fim:              aberto ? ($(`sch-${key}-fim`)?.value || "")    : "",
+      intervalo_inicio: aberto ? ($(`sch-${key}-iv-ini`)?.value || "") : "",
+      intervalo_fim:    aberto ? ($(`sch-${key}-iv-fim`)?.value || "")  : "",
+    };
+  });
+  return valid ? hf : null;
+}
+
+// ─────────────────────────────────────────
+//  BARBEIROS EDITOR (Painel)
+// ─────────────────────────────────────────
+let _barbeirosEditor = [];  // [{id, nome, status}]
+
+function buildBarbeirosEditor(barbeiros) {
+  _barbeirosEditor = (barbeiros || []).map(b => ({...b}));
+  renderBarbeirosEditor();
+}
+
+function renderBarbeirosEditor() {
+  const ed = $("barbers-editor");
+  if (!ed) return;
+  ed.innerHTML = "";
+  _barbeirosEditor.forEach((b, i) => {
+    const row = document.createElement("div");
+    row.className = "barber-row";
+    row.innerHTML = `
+      <input class="minput barber-row-name" type="text" value="${esc(b.nome)}"
+        placeholder="Nome do profissional"
+        onchange="_barbeirosEditor[${i}].nome = this.value"/>
+      <select class="barber-row-status"
+        onchange="_barbeirosEditor[${i}].status = this.value">
+        <option value="ativo" ${b.status !== "inativo" ? "selected" : ""}>Ativo</option>
+        <option value="inativo" ${b.status === "inativo" ? "selected" : ""}>Inativo</option>
+      </select>
+      <button class="barber-remove" title="Remover profissional" onclick="removeBarberRow(${i})">✕</button>`;
+    ed.appendChild(row);
+  });
+  if (!_barbeirosEditor.length) {
+    ed.innerHTML = `<div style="font-family:'DM Mono',monospace;font-size:.7rem;color:var(--text-dim);padding:8px 0">Nenhum profissional cadastrado. O agendamento continua funcionando normalmente.</div>`;
+  }
+}
+
+function addBarberRow() {
+  const inp = $("new-barber-name");
+  const nome = inp?.value.trim();
+  if (!nome) { toast("Informe o nome do profissional", "err"); return; }
+  _barbeirosEditor.push({ id: `b-${Date.now()}`, nome, status: "ativo" });
+  if (inp) inp.value = "";
+  renderBarbeirosEditor();
+}
+
+function removeBarberRow(idx) {
+  _barbeirosEditor.splice(idx, 1);
+  renderBarbeirosEditor();
+}
+
+function getBarbeirosFromEditor() {
+  return _barbeirosEditor.filter(b => b.nome?.trim()).map(b => ({
+    ...b,
+    nome: b.nome.trim()
+  }));
+}
+
+// ─────────────────────────────────────────
+//  TEMPLATES CONFIG
+// ─────────────────────────────────────────
+// Ícones de segmento
+const BUSINESS_ICONS = {
+  barbearia:"✂",salao:"💅",estetica:"✨",manicure:"💅",odontologia:"🦷",
+  tatuagem:"🎨",consultorio:"🏥",assistencia:"🔧",oficina:"🚗",petshop:"🐾",outro:"🏢"
+};
+const BUSINESS_LABELS_PT = {
+  barbearia:"Barbearia",salao:"Salão",estetica:"Estética",manicure:"Manicure",
+  odontologia:"Odontologia",tatuagem:"Tatuagem",consultorio:"Consultório",
+  assistencia:"Assistência Técnica",oficina:"Oficina",petshop:"Pet Shop",outro:"Outro"
+};
+
+// Textos CTA e hero por segmento
+const SEGMENT_TEXTS = {
+  barbearia:  {hero:"Barbearia Premium",cta:"Agendar Corte",about:"Nossa História",team:"Barbeiros",bookTitle:"Marque sua vez"},
+  salao:      {hero:"Salão & Beleza",cta:"Agendar Serviço",about:"Nossa Essência",team:"Nossa Equipe",bookTitle:"Agendar Horário"},
+  estetica:   {hero:"Estética & Bem-estar",cta:"Agendar Procedimento",about:"Nossa Clínica",team:"Nossa Equipe",bookTitle:"Agendar Procedimento"},
+  manicure:   {hero:"Nail Art & Manicure",cta:"Agendar Horário",about:"Sobre Nós",team:"Nossa Equipe",bookTitle:"Agendar Horário"},
+  odontologia:{hero:"Odontologia de Excelência",cta:"Agendar Consulta",about:"Nosso Consultório",team:"Nossa Equipe",bookTitle:"Agendar Consulta"},
+  tatuagem:   {hero:"Arte na Pele",cta:"Agendar Sessão",about:"Nosso Studio",team:"Nossos Artistas",bookTitle:"Agendar Sessão"},
+  consultorio:{hero:"Saúde & Cuidado",cta:"Agendar Consulta",about:"Sobre Nós",team:"Nossa Equipe",bookTitle:"Agendar Consulta"},
+  assistencia:{hero:"Assistência Técnica",cta:"Agendar Visita",about:"Sobre Nós",team:"Nossa Equipe",bookTitle:"Agendar Atendimento"},
+  oficina:    {hero:"Oficina de Confiança",cta:"Agendar Serviço",about:"Sobre Nós",team:"Nossa Equipe",bookTitle:"Agendar Serviço"},
+  petshop:    {hero:"Cuidado com Amor",cta:"Agendar Banho & Tosa",about:"Nossa História",team:"Nossa Equipe",bookTitle:"Agendar para seu Pet"},
+  outro:      {hero:"Serviço Premium",cta:"Agendar Agora",about:"Sobre Nós",team:"Nossa Equipe",bookTitle:"Agendar"},
+};
+
+const TEMPLATES = {
+  barbearia: [
+    { id: "classic",       name: "Classic",       desc: "Escuro & Dourado",   bg: "linear-gradient(135deg,#0e0e0e,#1a1a1a)", accent: "#c8a45a" },
+    { id: "dark",          name: "Dark Minimal",  desc: "Preto minimalista",  bg: "linear-gradient(135deg,#060606,#111)",     accent: "#ffffff" },
+    { id: "barber-red",    name: "Red & Black",   desc: "Ousado & moderno",   bg: "linear-gradient(135deg,#0a0a0a,#1a0000)", accent: "#cc2b2b" },
+    { id: "barber-chrome", name: "Chrome",        desc: "Industrial",         bg: "linear-gradient(135deg,#0d0d0d,#1c1c1c)", accent: "#9ba8b4" },
+  ],
+  salao: [
+    { id: "salon-rose",   name: "Rose",         desc: "Feminino & elegante",  bg: "linear-gradient(135deg,#1a0a10,#2a1020)", accent: "#e88fa0" },
+    { id: "salon-blush",  name: "Blush",        desc: "Suave & acolhedor",    bg: "linear-gradient(135deg,#fff5f7,#ffe0e8)", accent: "#c06080" },
+    { id: "salon-gold",   name: "Gold Femme",   desc: "Luxuoso & dourado",    bg: "linear-gradient(135deg,#1a1208,#2a1e0a)", accent: "#d4a855" },
+    { id: "salon-lilac",  name: "Lilac",        desc: "Moderno & delicado",   bg: "linear-gradient(135deg,#120a1a,#1e0f2a)", accent: "#b08ec8" },
+  ],
+  advocacia: [
+    { id: "law-navy",     name: "Navy",         desc: "Sóbrio & profissional", bg: "linear-gradient(135deg,#050a1a,#0a1228)", accent: "#4a7fc1" },
+    { id: "law-dark",     name: "Dark Law",     desc: "Autoridade clássica",   bg: "linear-gradient(135deg,#080808,#101010)", accent: "#c8a45a" },
+    { id: "law-clean",    name: "Clean White",  desc: "Limpeza corporativa",   bg: "linear-gradient(135deg,#f5f5f5,#ebebeb)", accent: "#1a3a6e" },
+    { id: "law-forest",   name: "Forest",       desc: "Confiança & seriedade", bg: "linear-gradient(135deg,#080e08,#101810)", accent: "#5a9468" },
+  ],
+  dentista: [
+    { id: "dent-white",   name: "Clean White",  desc: "Clínico & confiável",   bg: "linear-gradient(135deg,#f0f8ff,#e8f4ff)", accent: "#2080c0" },
+    { id: "dent-mint",    name: "Mint Fresh",   desc: "Fresco & acolhedor",    bg: "linear-gradient(135deg,#f0faf5,#e0f5ec)", accent: "#1a9060" },
+    { id: "dent-dark",    name: "Dark Dental",  desc: "Moderno & premium",     bg: "linear-gradient(135deg,#060e10,#0a1820)", accent: "#40b0d0" },
+    { id: "dent-coral",   name: "Coral Care",   desc: "Amigável & humano",     bg: "linear-gradient(135deg,#fff5f0,#ffe8e0)", accent: "#d05840" },
+  ],
+  estetica: [
+    { id: "est-nude",     name: "Nude",         desc: "Natural & sofisticado", bg: "linear-gradient(135deg,#1a1410,#241e18)", accent: "#c8a882" },
+    { id: "est-pink",     name: "Pink Studio",  desc: "Vibrante & jovem",      bg: "linear-gradient(135deg,#180a12,#28101e)", accent: "#e060a0" },
+    { id: "est-spa",      name: "Spa",          desc: "Zen & relaxante",       bg: "linear-gradient(135deg,#0a1208,#121a10)", accent: "#80b890" },
+    { id: "est-neon",     name: "Neon Pop",     desc: "Arrojado & criativo",   bg: "linear-gradient(135deg,#080810,#100c18)", accent: "#a050f0" },
+  ],
+  estetica: [
+    { id: "estetica-nude", name: "Nude Luxe",   desc: "Natural & sofisticado", bg: "linear-gradient(135deg,#0e0c08,#221c18)", accent: "#c8a882" },
+    { id: "estetica-pink", name: "Pink Studio", desc: "Vibrante & moderno",    bg: "linear-gradient(135deg,#0e0408,#220c18)", accent: "#e060a0" },
+    { id: "estetica-spa",  name: "Zen Spa",     desc: "Relaxante & natural",   bg: "linear-gradient(135deg,#060e08,#101e14)", accent: "#80b890" },
+  ],
+  manicure: [
+    { id: "manicure-pastel", name: "Pastel",   desc: "Delicado & feminino",    bg: "linear-gradient(135deg,#0c0608,#1e1018)", accent: "#d4809c" },
+    { id: "manicure-chic",   name: "Chic",     desc: "Elegante & dourado",     bg: "linear-gradient(135deg,#0a0806,#1c160c)", accent: "#c0a060" },
+    { id: "salon-rose",      name: "Rose",     desc: "Romantic & suave",       bg: "linear-gradient(135deg,#0e0508,#200a12)", accent: "#e88fa0" },
+  ],
+  odontologia: [
+    { id: "odonto-white", name: "Clean White", desc: "Clínico & confiável",    bg: "linear-gradient(135deg,#f0f8ff,#ddeef8)", accent: "#2080c0" },
+    { id: "odonto-mint",  name: "Mint Fresh",  desc: "Fresco & acolhedor",     bg: "linear-gradient(135deg,#f0faf5,#d4eee0)", accent: "#1a9060" },
+    { id: "odonto-dark",  name: "Dark Dental", desc: "Moderno & premium",      bg: "linear-gradient(135deg,#040c10,#102438)", accent: "#40b0d0" },
+  ],
+  tatuagem: [
+    { id: "tattoo-ink",  name: "Black Ink",   desc: "Minimalista & intenso",   bg: "linear-gradient(135deg,#030303,#0d0d0d)", accent: "#c8c0b0" },
+    { id: "tattoo-neon", name: "Neon",        desc: "Arrojado & criativo",     bg: "linear-gradient(135deg,#04020e,#100828)", accent: "#a050f0" },
+    { id: "dark",        name: "Dark Pro",    desc: "Profissional & sombrio",  bg: "linear-gradient(135deg,#020202,#0e0e0e)", accent: "#e8e8e8" },
+  ],
+  consultorio: [
+    { id: "clinic-clean", name: "Clean",      desc: "Claro & profissional",    bg: "linear-gradient(135deg,#f8fbff,#e0edf8)", accent: "#1a5096" },
+    { id: "clinic-pro",   name: "Pro Dark",   desc: "Premium & moderno",       bg: "linear-gradient(135deg,#060c14,#101c2c)", accent: "#2060a0" },
+    { id: "law-navy",     name: "Navy",       desc: "Autoridade & confiança",  bg: "linear-gradient(135deg,#020610,#0a1228)", accent: "#4a7fc1" },
+  ],
+  assistencia: [
+    { id: "tech-slate", name: "Slate",        desc: "Sóbrio & técnico",        bg: "linear-gradient(135deg,#080c10,#181c22)", accent: "#5a88b4" },
+    { id: "tech-neon",  name: "Neon Tech",   desc: "Digital & moderno",        bg: "linear-gradient(135deg,#020810,#061820)", accent: "#00e0c0" },
+    { id: "dark",       name: "Dark",         desc: "Minimalista",             bg: "linear-gradient(135deg,#020202,#0e0e0e)", accent: "#e8e8e8" },
+  ],
+  oficina: [
+    { id: "oficina-steel", name: "Steel",     desc: "Robusto & confiável",     bg: "linear-gradient(135deg,#060606,#161616)", accent: "#c08840" },
+    { id: "barber-chrome", name: "Chrome",    desc: "Industrial & moderno",    bg: "linear-gradient(135deg,#080a0c,#181e20)", accent: "#9ba8b4" },
+    { id: "dark",          name: "Dark",      desc: "Minimalista",             bg: "linear-gradient(135deg,#020202,#0e0e0e)", accent: "#e8e8e8" },
+  ],
+  petshop: [
+    { id: "pet-fresh", name: "Fresh",         desc: "Leve & acolhedor",        bg: "linear-gradient(135deg,#f4fbff,#d8eef8)", accent: "#2898d0" },
+    { id: "pet-warm",  name: "Warm",          desc: "Caloroso & amigável",     bg: "linear-gradient(135deg,#0a0604,#1e160c)", accent: "#d07030" },
+    { id: "salon-rose",name: "Rose",          desc: "Delicado & amoroso",      bg: "linear-gradient(135deg,#0e0508,#200a12)", accent: "#e88fa0" },
+  ],
+  outro: [
+    { id: "classic",   name: "Classic",       desc: "Escuro & dourado",        bg: "linear-gradient(135deg,#0e0e0e,#1a1a1a)", accent: "#c8a45a" },
+    { id: "minimal",   name: "Minimal",       desc: "Limpo & neutro",          bg: "linear-gradient(135deg,#f8f8f8,#eeeeee)", accent: "#333333" },
+    { id: "dark",      name: "Dark",          desc: "Preto minimalista",       bg: "linear-gradient(135deg,#060606,#111111)", accent: "#ffffff" },
+    { id: "law-navy",  name: "Corporate",     desc: "Profissional & sóbrio",   bg: "linear-gradient(135deg,#050a1a,#0a1228)", accent: "#4a7fc1" },
+  ],
+};
+
+// Labels para tipos de negócio
+const BUSINESS_LABELS = {
+  barbearia:  { equipe:"Barbeiros",   prof:"barbeiro",     servicos:"serviços",     hero:"Barbearia Premium",        sobre:"Nossa História" },
+  salao:      { equipe:"Equipe",      prof:"profissional", servicos:"tratamentos",  hero:"Salão & Beleza",           sobre:"Nossa Essência" },
+  estetica:   { equipe:"Equipe",      prof:"profissional", servicos:"procedimentos",hero:"Estética & Bem-estar",     sobre:"Nossa Clínica" },
+  manicure:   { equipe:"Equipe",      prof:"profissional", servicos:"serviços",     hero:"Nail Art & Manicure",      sobre:"Sobre Nós" },
+  odontologia:{ equipe:"Doutores",    prof:"dentista",     servicos:"tratamentos",  hero:"Odontologia de Excelência",sobre:"Nosso Consultório" },
+  tatuagem:   { equipe:"Artistas",    prof:"tatuador",     servicos:"estilos",      hero:"Arte na Pele",             sobre:"Nosso Studio" },
+  consultorio:{ equipe:"Doutores",    prof:"médico",       servicos:"especialidades",hero:"Saúde & Cuidado",         sobre:"Sobre Nós" },
+  assistencia:{ equipe:"Técnicos",    prof:"técnico",      servicos:"serviços",     hero:"Assistência Técnica",      sobre:"Sobre Nós" },
+  oficina:    { equipe:"Mecânicos",   prof:"mecânico",     servicos:"serviços",     hero:"Oficina de Confiança",     sobre:"Sobre Nós" },
+  petshop:    { equipe:"Cuidadores",  prof:"veterinário",  servicos:"serviços",     hero:"Cuidado com Amor",         sobre:"Nossa História" },
+  outro:      { equipe:"Equipe",      prof:"profissional", servicos:"serviços",     hero:"Serviço Premium",          sobre:"Nossa História" },
+  advocacia:  { equipe:"Advogados",   prof:"advogado",     servicos:"áreas",        hero:"Advocacia & Soluções",     sobre:"Nosso Escritório" },
+  dentista:   { equipe:"Doutores",    prof:"dentista",     servicos:"tratamentos",  hero:"Sorrisos Que Transformam", sobre:"Nosso Consultório" },
+};
+
+// Serviços padrão por tipo
+const DEFAULT_SERVICES = {
+  barbearia: [
+    { nome: "Corte Masculino",     descricao: "Corte clássico com acabamento perfeito", preco: 45.00, duracao: 30 },
+    { nome: "Barba",               descricao: "Modelagem e hidratação de barba",         preco: 35.00, duracao: 20 },
+    { nome: "Corte + Barba",       descricao: "Combo completo de corte e barba",         preco: 70.00, duracao: 45 },
+  ],
+  salao: [
+    { nome: "Corte Feminino",      descricao: "Corte e modelagem personalizada",         preco: 80.00, duracao: 60 },
+    { nome: "Escova",              descricao: "Escova modeladora com produto premium",    preco: 60.00, duracao: 40 },
+    { nome: "Coloração",           descricao: "Coloração completa com produtos de alta qualidade", preco: 150.00, duracao: 90 },
+  ],
+  advocacia: [
+    { nome: "Consulta Inicial",    descricao: "Análise do caso e orientação jurídica",   preco: 200.00, duracao: 60 },
+    { nome: "Contrato",            descricao: "Elaboração e revisão de contratos",        preco: 350.00, duracao: 90 },
+    { nome: "Defesa Administrativa",descricao:"Representação em processos administrativos",preco:500.00,duracao:120},
+  ],
+  dentista: [
+    { nome: "Consulta & Avaliação",descricao: "Exame completo e plano de tratamento",    preco: 120.00, duracao: 40 },
+    { nome: "Limpeza (Profilaxia)",descricao: "Limpeza profissional e aplicação de flúor",preco: 180.00, duracao: 50 },
+    { nome: "Clareamento",         descricao: "Clareamento dental com laser",             preco: 800.00, duracao: 90 },
+  ],
+  estetica: [
+    { nome: "Limpeza de Pele",     descricao: "Limpeza profunda e hidratação facial",    preco: 120.00, duracao: 60 },
+    { nome: "Massagem Relaxante",  descricao: "Massagem corporal com óleos essenciais",  preco: 150.00, duracao: 60 },
+    { nome: "Design de Sobrancelhas",descricao:"Modelagem e design de sobrancelhas",     preco: 50.00, duracao: 30 },
+  ],
+  outro: [],
+};
+
+function updateTemplateGrid() {
+  const type = $("m-business-type")?.value || "barbearia";
+  const current = $("m-template")?.value || "";
+  const tpls = TEMPLATES[type] || TEMPLATES.barbearia;
+  const grid = $("template-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  tpls.forEach(t => {
+    const card = document.createElement("div");
+    card.className = `tpl-card${current === t.id ? " active" : ""}`;
+    card.onclick = () => selectTemplate(t.id);
+    card.innerHTML = `
+      <div class="tpl-card-preview" style="background:${t.bg}">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+          <div style="width:18px;height:3px;border-radius:2px;background:${t.accent};opacity:.9"></div>
+        </div>
+      </div>
+      <div class="tpl-card-name">${esc(t.name)}</div>
+      <div class="tpl-card-desc">${esc(t.desc)}</div>
+      <div class="tpl-check">✓</div>`;
+    grid.appendChild(card);
+  });
+  // Select first if current not in list
+  if (!tpls.find(t => t.id === current)) {
+    selectTemplate(tpls[0].id);
+  }
+
+  // Update team section title
+  const labels = BUSINESS_LABELS[type] || BUSINESS_LABELS.barbearia;
+  const teamTitle = $("team-section-title");
+  if (teamTitle) teamTitle.textContent = labels.equipe;
+  const newBarberInp = $("new-barber-name");
+  if (newBarberInp) newBarberInp.placeholder = `Nome do ${labels.prof}`;
+}
+
+function selectTemplate(id) {
+  $("m-template").value = id;
+  document.querySelectorAll(".tpl-card").forEach(c => {
+    c.classList.toggle("active", c.querySelector(".tpl-card-name")?.textContent === 
+      (TEMPLATES[$("m-business-type")?.value || "barbearia"] || []).find(t => t.id === id)?.name);
+  });
+  // Re-render grid cleanly
+  const type = $("m-business-type")?.value || "barbearia";
+  const tpls = TEMPLATES[type] || TEMPLATES.barbearia;
+  document.querySelectorAll(".tpl-card").forEach((card, i) => {
+    card.classList.toggle("active", tpls[i]?.id === id);
+  });
+}
+
+// ─────────────────────────────────────────
+//  SERVIÇOS EDITOR (Painel)
+// ─────────────────────────────────────────
+let _svcsEditor = [];
+
+function buildSvcsEditor(svcs) {
+  _svcsEditor = (svcs || []).map(s => ({...s}));
+  renderSvcsEditor();
+}
+
+function renderSvcsEditor() {
+  const ed = $("services-editor");
+  if (!ed) return;
+  ed.innerHTML = "";
+  if (!_svcsEditor.length) {
+    ed.innerHTML = `<div style="font-family:'DM Mono',monospace;font-size:.7rem;color:var(--text-dim);padding:8px 0">Nenhum serviço. Use os campos abaixo para adicionar.</div>`;
+    return;
+  }
+  _svcsEditor.forEach((s, i) => {
+    const row = document.createElement("div");
+    row.className = "svc-editor-row";
+    row.innerHTML = `
+      <div class="svc-editor-col">
+        <div class="svc-editor-row-label">Nome</div>
+        <input type="text" value="${esc(s.nome)}" placeholder="Nome do serviço"
+          oninput="_svcsEditor[${i}].nome = this.value"/>
+      </div>
+      <div class="svc-editor-col">
+        <div class="svc-editor-row-label">Preço (R$)</div>
+        <input type="number" value="${s.preco || 0}" min="0" step="0.50"
+          oninput="_svcsEditor[${i}].preco = parseFloat(this.value)||0"/>
+      </div>
+      <div class="svc-editor-col">
+        <div class="svc-editor-row-label">Min</div>
+        <input type="number" value="${s.duracao || 30}" min="5" step="5"
+          oninput="_svcsEditor[${i}].duracao = parseInt(this.value)||30"/>
+      </div>
+      <div class="svc-editor-col">
+        <div class="svc-editor-row-label">Status</div>
+        <select onchange="_svcsEditor[${i}].ativo = this.value !== 'inativo'">
+          <option value="ativo" ${s.ativo !== false ? "selected":""}>Ativo</option>
+          <option value="inativo" ${s.ativo === false ? "selected":""}>Inativo</option>
+        </select>
+      </div>
+      <button class="svc-remove" title="Remover serviço" onclick="removeSvcRow(${i})">✕</button>`;
+    ed.appendChild(row);
+  });
+}
+
+function addSvcRow() {
+  const nome = $("new-svc-name")?.value.trim();
+  const preco = parseFloat($("new-svc-price")?.value) || 0;
+  const duracao = parseInt($("new-svc-dur")?.value) || 30;
+  if (!nome) { toast("Informe o nome do serviço", "err"); return; }
+  _svcsEditor.push({ id: `svc-${Date.now()}`, nome, descricao: "", preco, duracao, ativo: true });
+  if ($("new-svc-name")) $("new-svc-name").value = "";
+  if ($("new-svc-price")) $("new-svc-price").value = "";
+  renderSvcsEditor();
+}
+
+function removeSvcRow(idx) {
+  _svcsEditor.splice(idx, 1);
+  renderSvcsEditor();
+}
+
+function getSvcsFromEditor() {
+  return _svcsEditor.filter(s => s.nome?.trim()).map(s => ({
+    ...s,
+    nome: s.nome.trim(),
+    preco: parseFloat(s.preco) || 0,
+    duracao: parseInt(s.duracao) || 30,
+  }));
+}
+
+// ─────────────────────────────────────────
+//  GALERIA EDITOR (Opções Avançadas)
+// ─────────────────────────────────────────
+let _galleryUrls = [];
+
+function buildGalleryEditor(urls) {
+  _galleryUrls = [...(urls || [])];
+  renderGalleryEditor();
+}
+
+function renderGalleryEditor() {
+  const list = $("gallery-urls-list");
+  if (!list) return;
+  list.innerHTML = "";
+  _galleryUrls.forEach((url, i) => {
+    const row = document.createElement("div");
+    row.className = "gallery-url-row";
+    row.innerHTML = `
+      <input class="minput" type="url" value="${esc(url)}" placeholder="https://..."
+        oninput="_galleryUrls[${i}] = this.value" style="flex:1"/>
+      <button class="gallery-url-remove" onclick="removeGalleryUrl(${i})">✕</button>`;
+    list.appendChild(row);
+  });
+  const count = $("adv-galeria-count");
+  if (count) count.textContent = _galleryUrls.length ? `(${_galleryUrls.length} foto${_galleryUrls.length !== 1 ? "s" : ""})` : "";
+}
+
+function addGalleryUrl() {
+  const inp = $("new-gallery-url");
+  const url = inp?.value.trim();
+  if (!url) { toast("Informe a URL da imagem", "err"); return; }
+  _galleryUrls.push(url);
+  if (inp) inp.value = "";
+  renderGalleryEditor();
+}
+
+function removeGalleryUrl(i) {
+  _galleryUrls.splice(i, 1);
+  renderGalleryEditor();
+}
+
+function toggleAdv(section) {
+  const toggle = $(`adv-toggle-${section}`);
+  const content = $(`adv-${section}`);
+  if (!toggle || !content) return;
+  const isOpen = content.classList.toggle("open");
+  toggle.classList.toggle("open", isOpen);
+}
+
+// ─────────────────────────────────────────
+//  MODAL CLIENTE
+// ─────────────────────────────────────────
+function openModal(c = null) {
+  editingId       = c?.id || null;
+  autoSlugEnabled = !editingId;
+  $("modal-title").textContent = c ? "Editar Estabelecimento" : "Novo Estabelecimento";
+
+  $("m-nome").value     = c?.nome || "";
+  $("m-slug").value     = c?.slug || "";
+  $("m-slug").disabled  = !!c;
+  $("m-phone").value    = c?.telefone_whatsapp || "";
+  $("m-addr").value     = c?.endereco || "";
+  $("m-desc").value     = c?.descricao || "";
+  $("m-c1").value       = c?.cor_primaria    || "#1a1a2e";
+  $("m-c2").value       = c?.cor_secundaria  || "#c9a84c";
+  $("m-logo").value     = c?.logo   || "";
+  $("m-banner").value   = c?.banner || "";
+  $("m-status").value   = c?.status   || "ativo";
+  $("m-template").value = c?.template || "classic";
+  $("m-business-type").value = c?.business_type || "barbearia";
+
+  // Campos avançados
+  $("m-meta-title").value  = c?.meta_title || "";
+  $("m-meta-desc").value   = c?.meta_desc  || "";
+  $("m-instagram").value   = c?.instagram  || "";
+  $("m-slot-interval").value = c?.slot_interval || 30;
+  $("m-booking-days").value  = c?.booking_days  || 30;
+  $("m-max-per-slot").value  = c?.max_per_slot  || 1;
+  $("m-confirm-msg").value   = c?.confirm_msg   || "";
+  $("m-hero-tag").value      = c?.hero_tag      || "";
+  $("m-sobre-titulo").value  = c?.sobre_titulo  || "";
+  $("m-cta-text").value      = c?.cta_text      || "";
+  $("m-team-label").value    = c?.team_label    || "";
+  $("m-anos-exp").value      = c?.anos_exp      || 10;
+
+  // Fechar seções avançadas
+  ["galeria","seo","booking-cfg","textos"].forEach(s => {
+    $(`adv-${s}`)?.classList.remove("open");
+    $(`adv-toggle-${s}`)?.classList.remove("open");
+  });
+
+  // Template grid
+  updateTemplateGrid();
+  if (c?.template) $("m-template").value = c.template;
+
+  // Slug preview
+  const preview = $("slug-preview");
+  if (c?.slug) {
+    preview.style.display = "block";
+    preview.innerHTML = `<span class="slug-url">${esc(buildPublicLink(c.slug))}</span>`;
+  } else {
+    preview.style.display = "none";
+    preview.innerHTML = "";
+  }
+
+  // Serviços
+  buildSvcsEditor(c?.servicos || DEFAULT_SERVICES[c?.business_type || "barbearia"] || []);
+
+  // Galeria
+  buildGalleryEditor(c?.galeria || []);
+
+  // Horários
+  const hfDefault = {
+    segunda: {aberto:true,  inicio:"09:00",fim:"19:00",intervalo_inicio:"",intervalo_fim:""},
+    terca:   {aberto:true,  inicio:"09:00",fim:"19:00",intervalo_inicio:"",intervalo_fim:""},
+    quarta:  {aberto:true,  inicio:"09:00",fim:"19:00",intervalo_inicio:"",intervalo_fim:""},
+    quinta:  {aberto:true,  inicio:"09:00",fim:"19:00",intervalo_inicio:"",intervalo_fim:""},
+    sexta:   {aberto:true,  inicio:"09:00",fim:"20:00",intervalo_inicio:"",intervalo_fim:""},
+    sabado:  {aberto:true,  inicio:"08:00",fim:"18:00",intervalo_inicio:"",intervalo_fim:""},
+    domingo: {aberto:false, inicio:"",     fim:"",     intervalo_inicio:"",intervalo_fim:""},
+  };
+  buildScheduleEditor(c?.horario_funcionamento || hfDefault);
+
+  // Barbeiros
+  buildBarbeirosEditor(c?.barbeiros || []);
+
+  $("schedule-err").style.display = "none";
+  $("client-modal").classList.add("show");
+}
+
+function closeModal() {
+  $("client-modal").classList.remove("show");
+  editingId = null;
+  autoSlugEnabled = true;
+}
+
+async function editClient(id) {
+  // Usa endpoint individual em vez de baixar todos os clientes
+  const res = await api(`/api/admin/clients/${id}`);
+  if (res.success && res.data) openModal(res.data);
+  else toast(res.message || "Cadastro não encontrado", "err");
+}
+
+async function deleteClient(id, name) {
+  if (!confirm(`Excluir "${name}"?\n\nEsta ação não pode ser desfeita.`)) return;
+  const res = await api(`/api/admin/clients/${id}`, { method: "DELETE" });
+  if (res.success) { toast("✓ Cadastro excluído", "ok"); renderClients(); }
+  else toast(res.message || "Erro ao excluir", "err");
+}
+
+async function saveClient() {
+  // Valida horários
+  const hf = getScheduleFromEditor();
+  if (!hf) {
+    $("schedule-err").textContent = "Corrija os erros nos horários antes de salvar.";
+    $("schedule-err").style.display = "block";
+    $("schedule-err").scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+  $("schedule-err").style.display = "none";
+
+  const barbeiros = getBarbeirosFromEditor();
+  const servicos  = getSvcsFromEditor();
+  const galeria   = _galleryUrls.filter(u => u.trim());
+
+  const body = {
+    nome:              $("m-nome").value.trim(),
+    slug:              $("m-slug").value.trim(),
+    telefone_whatsapp: cleanPhone($("m-phone").value),
+    endereco:          $("m-addr").value.trim(),
+    descricao:         $("m-desc").value.trim(),
+    cor_primaria:      $("m-c1").value,
+    cor_secundaria:    $("m-c2").value,
+    logo:              $("m-logo").value.trim(),
+    banner:            $("m-banner").value.trim(),
+    status:            $("m-status").value,
+    template:          $("m-template").value,
+    business_type:     $("m-business-type").value,
+    horario_funcionamento: hf,
+    barbeiros,
+    servicos,
+    galeria,
+    // Avançado
+    meta_title:    $("m-meta-title").value.trim(),
+    meta_desc:     $("m-meta-desc").value.trim(),
+    instagram:     $("m-instagram").value.trim(),
+    slot_interval: parseInt($("m-slot-interval").value) || 30,
+    booking_days:  parseInt($("m-booking-days").value)  || 30,
+    max_per_slot:  parseInt($("m-max-per-slot").value)   || 1,
+    confirm_msg:   $("m-confirm-msg").value.trim(),
+    hero_tag:      $("m-hero-tag").value.trim(),
+    sobre_titulo:  $("m-sobre-titulo").value.trim(),
+    cta_text:      $("m-cta-text").value.trim(),
+    team_label:    $("m-team-label").value.trim(),
+    anos_exp:      parseInt($("m-anos-exp").value) || 10,
+  };
+
+  if (!body.nome)              { toast("Informe o nome do estabelecimento", "err"); return; }
+  if (!body.slug && !editingId){ toast("Informe o slug", "err"); return; }
+  if (!body.telefone_whatsapp) { toast("Informe o WhatsApp", "err"); return; }
+  if (body.telefone_whatsapp.length < 8) { toast("WhatsApp inválido", "err"); return; }
+
+  const btn = $("modal-save-btn");
+  btn.disabled = true; btn.textContent = "Salvando...";
+
+  const res = editingId
+    ? await api(`/api/admin/clients/${editingId}`, { method: "PUT",  body: JSON.stringify(body) })
+    : await api("/api/admin/clients",              { method: "POST", body: JSON.stringify(body) });
+
+  btn.disabled = false; btn.textContent = "Salvar";
+
+  if (res.success) {
+    const isNew = !editingId;
+    toast(isNew ? "✓ Cadastro criado!" : "✓ Atualizado!", "ok");
+    closeModal();
+    if (isNew && res.data?.slug) {
+      const link = res.data.link_publico || buildPublicLink(res.data.slug);
+      setTimeout(() => {
+        if (confirm(`Cadastro criado!\n\nLink da agenda:\n${link}\n\nCopiar link agora?`)) {
+          copyToClipboard(link);
+        }
+      }, 400);
+    }
+    renderClients();
+  } else {
+    toast(res.message || "Erro ao salvar", "err");
+  }
+}
+
+// ─────────────────────────────────────────
+//  HELPERS DE LINK
+// ─────────────────────────────────────────
+function copyLink(slug) {
+  copyToClipboard(buildPublicLink(slug));
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => toast("✓ Link copiado!", "ok"))
+      .catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const inp = document.createElement("input");
+  inp.value = text; inp.style.position = "fixed"; inp.style.top = "-999px";
+  document.body.appendChild(inp); inp.select(); document.execCommand("copy");
+  document.body.removeChild(inp);
+  toast("✓ Link copiado!", "ok");
+}
+
+function previewLink(slug) {
+  window.open(buildPublicLink(slug), "_blank");
+}
+
+function openWppOnboarding(slug, nome) {
+  const link = buildPublicLink(slug);
+  const msg  = encodeURIComponent(
+    `Olá! 👋\n\nSeu link de agendamento online está pronto:\n\n${link}\n\nCompartilhe no seu Instagram, stories e grupos do WhatsApp para seus clientes agendarem direto pelo celular! 📅`
+  );
+  const phone = prompt(`Número do WhatsApp de "${nome}" (com DDI, ex: 5511999999999):`);
+  if (phone) window.open(`https://wa.me/${cleanPhone(phone)}?text=${msg}`, "_blank");
+}
+
+function navTo(page) {
+  document.querySelectorAll(".sn-item").forEach(x => {
+    x.classList.toggle("active", x.dataset.page === page);
+  });
+  renderPage(page);
+}
+</script>
+</body>
+</html>
